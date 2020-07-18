@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import markdownTable from 'markdown-table'
 import replaceComment, {deleteComment} from '@aki77/actions-replace-comment'
-import {parse, FailureResult} from './parse'
+import {parse} from './parse'
+import {example2Table} from './table'
 
 const TITLE = '# :cold_sweat: RSpec failure'
 
@@ -19,17 +19,6 @@ const commentGeneralOptions = () => {
     repo: github.context.repo.repo,
     issue_number: pullRequestId
   }
-}
-
-const example2Table = (examples: FailureResult['examples']): string => {
-  return markdownTable([
-    ['Example', 'Description', 'Message'],
-    ...examples.map(({example, description, message}) => [
-      example,
-      description,
-      message
-    ])
-  ])
 }
 
 async function run(): Promise<void> {
@@ -51,7 +40,9 @@ async function run(): Promise<void> {
       body: `${TITLE}
   <details>
   <summary>${result.summary}</summary>
+
   ${example2Table(result.examples)}
+
   </details>
   `
     })

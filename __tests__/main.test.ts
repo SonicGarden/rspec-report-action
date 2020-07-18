@@ -1,5 +1,6 @@
 import * as path from 'path'
 import {parse} from '../src/parse'
+import {example2Table} from '../src/table'
 
 test('Parse rspec result json', async () => {
   const result = await parse(path.resolve(__dirname, '../.dummy_results.json'))
@@ -15,4 +16,18 @@ test('Parse rspec result json', async () => {
       }
     ]
   })
+})
+
+test('example2Table', () => {
+  const examples = [
+    {
+      example: './dummy_spec.rb:1',
+      description: 'dummy',
+      message: 'error!\nerror!'
+    }
+  ]
+  expect(example2Table(examples))
+    .toEqual(`| Example           | Description | Message       |
+| ----------------- | ----------- | ------------- |
+| ./dummy_spec.rb:1 | dummy       | error! error! |`)
 })

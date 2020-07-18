@@ -582,7 +582,7 @@ function parse(resultPath) {
     });
     return {
         examples,
-        summary: json.summary_line,
+        summary: json.summary_line
     };
 }
 exports.parse = parse;
@@ -623,15 +623,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
-const markdown_table_1 = __importDefault(__webpack_require__(366));
 const actions_replace_comment_1 = __importStar(__webpack_require__(395));
 const parse_1 = __webpack_require__(179);
+const table_1 = __webpack_require__(402);
 const TITLE = '# :cold_sweat: RSpec failure';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const commentGeneralOptions = () => {
@@ -643,14 +640,8 @@ const commentGeneralOptions = () => {
         token: core.getInput('token', { required: true }),
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
-        issue_number: pullRequestId,
+        issue_number: pullRequestId
     };
-};
-const example2Table = (examples) => {
-    return markdown_table_1.default([
-        ['Example', 'Description', 'Message'],
-        ...examples.map(({ example, description, message }) => [example, description, message])
-    ]);
 };
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -665,7 +656,9 @@ function run() {
             yield actions_replace_comment_1.default(Object.assign(Object.assign({}, commentGeneralOptions()), { body: `${TITLE}
   <details>
   <summary>${result.summary}</summary>
-  ${example2Table(result.examples)}
+
+  ${table_1.example2Table(result.examples)}
+
   </details>
   ` }));
         }
@@ -1618,6 +1611,32 @@ function replaceComment({ token, owner, repo, issue_number, body }) {
     });
 }
 exports.default = replaceComment;
+
+
+/***/ }),
+
+/***/ 402:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.example2Table = void 0;
+const markdown_table_1 = __importDefault(__webpack_require__(366));
+function example2Table(examples) {
+    return markdown_table_1.default([
+        ['Example', 'Description', 'Message'],
+        ...examples.map(({ example, description, message }) => [
+            example,
+            description,
+            message.replace(/\n+/g, ' ')
+        ])
+    ]);
+}
+exports.example2Table = example2Table;
 
 
 /***/ }),
