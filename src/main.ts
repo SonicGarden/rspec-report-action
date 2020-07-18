@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
+import * as fs from 'fs'
 import replaceComment, {deleteComment} from '@aki77/actions-replace-comment'
 import {parse} from './parse'
 import {example2Table} from './table'
@@ -24,6 +25,14 @@ const commentGeneralOptions = () => {
 async function run(): Promise<void> {
   try {
     const jsonPath = core.getInput('json-path', {required: true})
+
+    try {
+      fs.accessSync(jsonPath, fs.constants.R_OK)
+    } catch (err) {
+      core.warning(`${jsonPath}: access error!`)
+      return
+    }
+
     const result = parse(jsonPath)
     if (result.examples.length === 0) {
       await deleteComment({

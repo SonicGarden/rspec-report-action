@@ -626,6 +626,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
+const fs = __importStar(__webpack_require__(747));
 const actions_replace_comment_1 = __importStar(__webpack_require__(395));
 const parse_1 = __webpack_require__(179);
 const table_1 = __webpack_require__(402);
@@ -647,6 +648,13 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const jsonPath = core.getInput('json-path', { required: true });
+            try {
+                fs.accessSync(jsonPath, fs.constants.R_OK);
+            }
+            catch (err) {
+                core.warning(`${jsonPath}: access error!`);
+                return;
+            }
             const result = parse_1.parse(jsonPath);
             if (result.examples.length === 0) {
                 yield actions_replace_comment_1.deleteComment(Object.assign(Object.assign({}, commentGeneralOptions()), { body: TITLE, startsWith: true }));
