@@ -82,7 +82,7 @@
         "pending_message":null,
         "exception":{
            "class":"RSpec::Expectations::ExpectationNotMetError",
-           "message":"\nexpected: true\n     got: false\n\n(compared using ==)\n\nDiff:\u001b[0m\n\u001b[0m\u001b[34m@@ -1 +1 @@\n\u001b[0m\u001b[31m-true\n\u001b[0m\u001b[32m+false\n\u001b[0m",
+           "message":"\nexpected: true\n     got: false\n\n(compared using ==)",
            "backtrace":[
               "/Users/aki/.rbenv/versions/2.7.1/lib/ruby/gems/2.7.0/gems/rspec-support-3.9.3/lib/rspec/support.rb:97:in `block in \u003cmodule:Support\u003e'",
               "/Users/aki/.rbenv/versions/2.7.1/lib/ruby/gems/2.7.0/gems/rspec-support-3.9.3/lib/rspec/support.rb:106:in `notify_failure'",
