@@ -1,10 +1,13 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: "RSpec Failure Report"
+description: "RSpec Failure Report"
+author: "aki77"
 inputs:
-  milliseconds:           # change this
-    description: 'input description here'
-    default: 'default value if applicable'
+  token:
+    description: "Github token"
+    required: true
+  json-path:
+    description: "JSON File path"
+    required: true
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "node12"
+  main: "dist/index.js"

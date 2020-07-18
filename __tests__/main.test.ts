@@ -1,27 +1,18 @@
-import {wait} from '../src/wait'
-import * as process from 'process'
-import * as cp from 'child_process'
 import * as path from 'path'
+import {parse} from '../src/parse'
 
-test('throws invalid number', async () => {
-  const input = parseInt('foo', 10)
-  await expect(wait(input)).rejects.toThrow('milliseconds not a number')
-})
-
-test('wait 500 ms', async () => {
-  const start = new Date()
-  await wait(500)
-  const end = new Date()
-  var delta = Math.abs(end.getTime() - start.getTime())
-  expect(delta).toBeGreaterThan(450)
-})
-
-// shows how the runner will run a javascript action with env / stdout protocol
-test('test runs', () => {
-  process.env['INPUT_MILLISECONDS'] = '500'
-  const ip = path.join(__dirname, '..', 'lib', 'main.js')
-  const options: cp.ExecSyncOptions = {
-    env: process.env
-  }
-  console.log(cp.execSync(`node ${ip}`, options).toString())
+test('Parse rspec result json', async () => {
+  const result = await parse(path.resolve(__dirname, '../.dummy_results.json'))
+  expect(result).toEqual({
+    summary: '25 examples, 1 failure',
+    examples: [
+      {
+        example: './spec/activestorage/validator/blob_spec.rb:37',
+        description:
+          'ActiveRecord::Validations::BlobValidator with size_range option 1.4MB is expected to eq true',
+        message:
+          '\nexpected: true\n     got: false\n\n(compared using ==)\n\nDiff:\u001b[0m\n\u001b[0m\u001b[34m@@ -1 +1 @@\n\u001b[0m\u001b[31m-true\n\u001b[0m\u001b[32m+false\n\u001b[0m'
+      }
+    ]
+  })
 })
