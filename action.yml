@@ -1,5 +1,8 @@
 name: "RSpec Report"
 description: "A GitHub Action that report RSpec failure."
+branding:
+  icon: alert-triangle
+  color: red
 author: "aki77"
 inputs:
   token:
