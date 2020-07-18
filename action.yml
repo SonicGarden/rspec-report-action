@@ -1,5 +1,5 @@
-name: "RSpec Failure Report"
-description: "RSpec Failure Report"
+name: "RSpec Report"
+description: "A GitHub Action that report RSpec failure."
 author: "aki77"
 inputs:
   token:
