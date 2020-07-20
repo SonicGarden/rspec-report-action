@@ -31,5 +31,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           json-path: tmp/rspec_results.json
-        if: failure()
+        if: always()
 ```
