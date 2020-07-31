@@ -644,6 +644,22 @@ const commentGeneralOptions = () => {
         issue_number: pullRequestId
     };
 };
+const createCheckRun = () => __awaiter(void 0, void 0, void 0, function* () {
+    yield github
+        .getOctokit(core.getInput('token', { required: true }))
+        .checks.create({
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        name: 'RSpec Result',
+        head_sha: github.context.sha,
+        status: 'completed',
+        conclusion: 'failure',
+        output: {
+            title: 'RSpec Result',
+            summary: 'hoge'
+        }
+    });
+});
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -656,6 +672,9 @@ function run() {
                 return;
             }
             const result = parse_1.parse(jsonPath);
+            yield createCheckRun();
+            core.setFailed('rspec failure');
+            return;
             if (result.examples.length === 0) {
                 yield actions_replace_comment_1.deleteComment(Object.assign(Object.assign({}, commentGeneralOptions()), { body: TITLE, startsWith: true }));
                 core.info(result.summary);

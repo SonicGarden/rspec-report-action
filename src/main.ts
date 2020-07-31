@@ -22,6 +22,23 @@ const commentGeneralOptions = () => {
   }
 }
 
+const createCheckRun = async (): Promise<void> => {
+  await github
+    .getOctokit(core.getInput('token', {required: true}))
+    .checks.create({
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      name: 'RSpec Result',
+      head_sha: github.context.sha,
+      status: 'completed',
+      conclusion: 'failure',
+      output: {
+        title: 'RSpec Result',
+        summary: 'hoge'
+      }
+    })
+}
+
 async function run(): Promise<void> {
   try {
     const jsonPath = core.getInput('json-path', {required: true})
@@ -34,6 +51,11 @@ async function run(): Promise<void> {
     }
 
     const result = parse(jsonPath)
+
+    await createCheckRun()
+    core.setFailed('rspec failure')
+    return
+
     if (result.examples.length === 0) {
       await deleteComment({
         ...commentGeneralOptions(),
