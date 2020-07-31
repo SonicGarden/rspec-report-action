@@ -2,11 +2,19 @@
 
 A GitHub Action that report RSpec failure.
 
-![Demo](https://i.gyazo.com/29402af7cc01eaac256bb54a3ebe8049.png)
-
 ## Usage:
 
-The action works only with `pull_request` event.
+### pull_request event
+
+Reported in issue comment.
+
+![Demo](https://i.gyazo.com/29402af7cc01eaac256bb54a3ebe8049.png)
+
+### other event
+
+Reported in check runs.
+
+![Demo](https://i.gyazo.com/9ab78f43d95155cd95fdf0f89f4cf3b0.png)
 
 ### Inputs
 
