@@ -29,12 +29,13 @@ type FailureExample = {
   message: string
 }
 
-export type FailureResult = {
+export type RspecResult = {
   examples: FailureExample[]
   summary: string
+  success: boolean
 }
 
-export function parse(resultPath: string): FailureResult {
+export function parse(resultPath: string): RspecResult {
   // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
   const json = require(path.resolve(
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -55,6 +56,7 @@ export function parse(resultPath: string): FailureResult {
 
   return {
     examples,
-    summary: json.summary_line
+    summary: json.summary_line,
+    success: examples.length === 0
   }
 }

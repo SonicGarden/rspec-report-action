@@ -1,7 +1,7 @@
 import markdownTable from 'markdown-table'
-import type {FailureResult} from './parse'
+import type {RspecResult} from './parse'
 
-export function example2Table(examples: FailureResult['examples']): string {
+export function example2Table(examples: RspecResult['examples']): string {
   return markdownTable([
     ['Example', 'Description', 'Message'],
     ...examples.map(({example, description, message}) => [
