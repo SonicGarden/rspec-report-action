@@ -13,7 +13,8 @@ test('Parse rspec result json', async () => {
           'ActiveRecord::Validations::BlobValidator with size_range option 1.4MB is expected to eq true',
         message: '\nexpected: true\n     got: false\n\n(compared using ==)'
       }
-    ]
+    ],
+    success: false
   })
 })
 
