@@ -6457,7 +6457,6 @@ const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const actions_replace_comment_1 = __importStar(__webpack_require__(395));
 const table_1 = __webpack_require__(402);
-const TITLE = '# :cold_sweat: RSpec failure';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const commentGeneralOptions = () => {
     const pullRequestId = github.context.issue.number;
@@ -6476,11 +6475,12 @@ exports.reportPR = (result) => __awaiter(void 0, void 0, void 0, function* () {
     if (!pullRequestId) {
         throw new Error('Cannot find the PR id.');
     }
+    const title = core.getInput('title', { required: true });
     if (result.success) {
-        yield actions_replace_comment_1.deleteComment(Object.assign(Object.assign({}, commentGeneralOptions()), { body: TITLE, startsWith: true }));
+        yield actions_replace_comment_1.deleteComment(Object.assign(Object.assign({}, commentGeneralOptions()), { body: title, startsWith: true }));
         return;
     }
-    yield actions_replace_comment_1.default(Object.assign(Object.assign({}, commentGeneralOptions()), { body: `${TITLE}
+    yield actions_replace_comment_1.default(Object.assign(Object.assign({}, commentGeneralOptions()), { body: `${title}
 <details>
 <summary>${result.summary}</summary>
 

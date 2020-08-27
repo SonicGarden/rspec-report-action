@@ -11,6 +11,10 @@ inputs:
   json-path:
     description: "JSON File path"
     required: true
+  title:
+    description: "Title"
+    default: "# :cold_sweat: RSpec failure"
+    required: false
 runs:
   using: "node12"
   main: "dist/index.js"
