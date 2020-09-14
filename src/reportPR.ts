@@ -4,8 +4,6 @@ import replaceComment, {deleteComment} from '@aki77/actions-replace-comment'
 import type {RspecResult} from './parse'
 import {example2Table} from './table'
 
-const TITLE = '# :cold_sweat: RSpec failure'
-
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const commentGeneralOptions = () => {
   const pullRequestId = github.context.issue.number
@@ -27,10 +25,12 @@ export const reportPR = async (result: RspecResult): Promise<void> => {
     throw new Error('Cannot find the PR id.')
   }
 
+  const title = core.getInput('title', {required: true})
+
   if (result.success) {
     await deleteComment({
       ...commentGeneralOptions(),
-      body: TITLE,
+      body: title,
       startsWith: true
     })
     return
@@ -38,7 +38,7 @@ export const reportPR = async (result: RspecResult): Promise<void> => {
 
   await replaceComment({
     ...commentGeneralOptions(),
-    body: `${TITLE}
+    body: `${title}
 <details>
 <summary>${result.summary}</summary>
 
