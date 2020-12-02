@@ -25,7 +25,7 @@
   "author": "aki77",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.0",
+    "@actions/core": "^1.2.6",
     "@actions/github": "^4.0.0",
     "@aki77/actions-replace-comment": "^0.4.1",
     "markdown-table": "^2.0.0"
