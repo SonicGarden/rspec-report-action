@@ -1,4 +1,4 @@
-import markdownTable from 'markdown-table'
+import {markdownTable} from 'markdown-table'
 import type {RspecResult} from './parse'
 
 export function example2Table(examples: RspecResult['examples']): string {
