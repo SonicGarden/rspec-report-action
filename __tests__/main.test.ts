@@ -1,6 +1,7 @@
 import * as path from 'path'
 import {parse} from '../src/parse'
 import {example2Table} from '../src/table'
+import {expect, test} from '@jest/globals'
 
 test('Parse rspec result json', async () => {
   const result = await parse(path.resolve(__dirname, '../.dummy_results.json'))
