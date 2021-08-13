@@ -12,7 +12,7 @@ ${example2Table(result.examples)}
 
   await github
     .getOctokit(core.getInput('token', {required: true}))
-    .checks.create({
+    .rest.checks.create({
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
       name: 'RSpec Result',
