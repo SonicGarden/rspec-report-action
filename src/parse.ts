@@ -36,7 +36,7 @@ export type RspecResult = {
 }
 
 export function parse(resultPath: string): RspecResult {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+  // eslint-disable-next-line import/no-dynamic-require,@typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports
   const json = require(path.resolve(
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     process.env.GITHUB_WORKSPACE!,
