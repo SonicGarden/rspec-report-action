@@ -572,7 +572,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.parse = void 0;
 const path_1 = __importDefault(__webpack_require__(622));
 function parse(resultPath) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    // eslint-disable-next-line import/no-dynamic-require,@typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports
     const json = require(path_1.default.resolve(
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     process.env.GITHUB_WORKSPACE, resultPath));
@@ -632,11 +632,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
-const github = __importStar(__webpack_require__(469));
 const fs = __importStar(__webpack_require__(747));
+const github = __importStar(__webpack_require__(469));
 const parse_1 = __webpack_require__(179);
-const reportChecks_1 = __webpack_require__(996);
-const reportPR_1 = __webpack_require__(903);
+const report_checks_1 = __webpack_require__(312);
+const report_pr_1 = __webpack_require__(836);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -650,7 +650,7 @@ function run() {
             }
             const result = parse_1.parse(jsonPath);
             core.info(result.summary);
-            const report = github.context.issue.number ? reportPR_1.reportPR : reportChecks_1.reportChecks;
+            const report = github.context.issue.number ? report_pr_1.reportPR : report_checks_1.reportChecks;
             yield report(result);
         }
         catch (error) {
@@ -986,6 +986,70 @@ exports.isPaginatingEndpoint = isPaginatingEndpoint;
 exports.paginateRest = paginateRest;
 exports.paginatingEndpoints = paginatingEndpoints;
 //# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 312:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.reportChecks = void 0;
+const core = __importStar(__webpack_require__(470));
+const github = __importStar(__webpack_require__(469));
+const table_1 = __webpack_require__(402);
+const reportChecks = (result) => __awaiter(void 0, void 0, void 0, function* () {
+    const icon = result.success ? ':tada:' : ':cold_sweat:';
+    const summary = `${icon} ${result.summary}
+
+${table_1.example2Table(result.examples)}
+`;
+    yield github
+        .getOctokit(core.getInput('token', { required: true }))
+        .rest.checks.create({
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        name: 'RSpec Result',
+        head_sha: github.context.sha,
+        status: 'completed',
+        conclusion: result.success ? 'success' : 'failure',
+        output: {
+            title: 'RSpec Result',
+            summary
+        }
+    });
+});
+exports.reportChecks = reportChecks;
 
 
 /***/ }),
@@ -6516,6 +6580,82 @@ module.exports = require("url");
 
 /***/ }),
 
+/***/ 836:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.reportPR = void 0;
+const core = __importStar(__webpack_require__(470));
+const github = __importStar(__webpack_require__(469));
+const actions_replace_comment_1 = __importStar(__webpack_require__(395));
+const table_1 = __webpack_require__(402);
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const commentGeneralOptions = () => {
+    const pullRequestId = github.context.issue.number;
+    if (!pullRequestId) {
+        throw new Error('Cannot find the PR id.');
+    }
+    return {
+        token: core.getInput('token', { required: true }),
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        issue_number: pullRequestId
+    };
+};
+const reportPR = (result) => __awaiter(void 0, void 0, void 0, function* () {
+    const pullRequestId = github.context.issue.number;
+    if (!pullRequestId) {
+        throw new Error('Cannot find the PR id.');
+    }
+    const title = core.getInput('title', { required: true });
+    if (result.success) {
+        yield actions_replace_comment_1.deleteComment(Object.assign(Object.assign({}, commentGeneralOptions()), { body: title, startsWith: true }));
+        return;
+    }
+    yield actions_replace_comment_1.default(Object.assign(Object.assign({}, commentGeneralOptions()), { body: `${title}
+<details>
+<summary>${result.summary}</summary>
+
+${table_1.example2Table(result.examples)}
+
+</details>
+` }));
+});
+exports.reportPR = reportPR;
+
+
+/***/ }),
+
 /***/ 842:
 /***/ (function(__unusedmodule, exports) {
 
@@ -7961,82 +8101,6 @@ exports.withCustomRequest = withCustomRequest;
 
 /***/ }),
 
-/***/ 903:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.reportPR = void 0;
-const core = __importStar(__webpack_require__(470));
-const github = __importStar(__webpack_require__(469));
-const actions_replace_comment_1 = __importStar(__webpack_require__(395));
-const table_1 = __webpack_require__(402);
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-const commentGeneralOptions = () => {
-    const pullRequestId = github.context.issue.number;
-    if (!pullRequestId) {
-        throw new Error('Cannot find the PR id.');
-    }
-    return {
-        token: core.getInput('token', { required: true }),
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
-        issue_number: pullRequestId
-    };
-};
-const reportPR = (result) => __awaiter(void 0, void 0, void 0, function* () {
-    const pullRequestId = github.context.issue.number;
-    if (!pullRequestId) {
-        throw new Error('Cannot find the PR id.');
-    }
-    const title = core.getInput('title', { required: true });
-    if (result.success) {
-        yield actions_replace_comment_1.deleteComment(Object.assign(Object.assign({}, commentGeneralOptions()), { body: title, startsWith: true }));
-        return;
-    }
-    yield actions_replace_comment_1.default(Object.assign(Object.assign({}, commentGeneralOptions()), { body: `${title}
-<details>
-<summary>${result.summary}</summary>
-
-${table_1.example2Table(result.examples)}
-
-</details>
-` }));
-});
-exports.reportPR = reportPR;
-
-
-/***/ }),
-
 /***/ 916:
 /***/ (function(__unusedmodule, exports) {
 
@@ -8136,70 +8200,6 @@ function checkBypass(reqUrl) {
     return false;
 }
 exports.checkBypass = checkBypass;
-
-
-/***/ }),
-
-/***/ 996:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.reportChecks = void 0;
-const core = __importStar(__webpack_require__(470));
-const github = __importStar(__webpack_require__(469));
-const table_1 = __webpack_require__(402);
-const reportChecks = (result) => __awaiter(void 0, void 0, void 0, function* () {
-    const icon = result.success ? ':tada:' : ':cold_sweat:';
-    const summary = `${icon} ${result.summary}
-
-${table_1.example2Table(result.examples)}
-`;
-    yield github
-        .getOctokit(core.getInput('token', { required: true }))
-        .rest.checks.create({
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
-        name: 'RSpec Result',
-        head_sha: github.context.sha,
-        status: 'completed',
-        conclusion: result.success ? 'success' : 'failure',
-        output: {
-            title: 'RSpec Result',
-            summary
-        }
-    });
-});
-exports.reportChecks = reportChecks;
 
 
 /***/ })
