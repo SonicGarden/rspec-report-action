@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
-import * as github from '@actions/github'
 import * as fs from 'fs'
+import * as github from '@actions/github'
 import {parse} from './parse'
-import {reportChecks} from './reportChecks'
-import {reportPR} from './reportPR'
+import {reportChecks} from './report-checks'
+import {reportPR} from './report-pr'
 
 async function run(): Promise<void> {
   try {
