@@ -1,6 +1,5 @@
 import * as path from 'path'
 import {parse} from '../src/parse'
-import {example2Table} from '../src/table'
 import {expect, test} from '@jest/globals'
 
 test('Parse rspec result json', async () => {
@@ -17,18 +16,4 @@ test('Parse rspec result json', async () => {
     ],
     success: false
   })
-})
-
-test('example2Table', () => {
-  const examples = [
-    {
-      example: './dummy_spec.rb:1',
-      description: 'dummy',
-      message: 'error!\nerror!'
-    }
-  ]
-  expect(example2Table(examples))
-    .toEqual(`| Example           | Description | Message       |
-| ----------------- | ----------- | ------------- |
-| ./dummy_spec.rb:1 | dummy       | error! error! |`)
 })

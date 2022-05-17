@@ -1,5 +1,4 @@
 /* eslint-disable import/no-commonjs */
-/* eslint-disable filenames/match-regex */
 module.exports = {
   clearMocks: true,
   moduleFileExtensions: ['js', 'ts'],

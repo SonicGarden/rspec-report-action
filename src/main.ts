@@ -1,9 +1,7 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
-import * as github from '@actions/github'
 import {parse} from './parse'
-import {reportChecks} from './report-checks'
-import {reportPR} from './report-pr'
+import {reportSummary} from './report-summary'
 
 async function run(): Promise<void> {
   try {
@@ -18,11 +16,11 @@ async function run(): Promise<void> {
 
     const result = parse(jsonPath)
     core.info(result.summary)
-
-    const report = github.context.issue.number ? reportPR : reportChecks
-    await report(result)
+    await reportSummary(result)
   } catch (error) {
-    core.setFailed(error.message)
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    }
   }
 }
 
