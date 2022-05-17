@@ -22,7 +22,9 @@ async function run(): Promise<void> {
     const report = github.context.issue.number ? reportPR : reportChecks
     await report(result)
   } catch (error) {
-    core.setFailed(error.message)
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    }
   }
 }
 
