@@ -15,9 +15,9 @@ export const reportSummary = async (result: RspecResult): Promise<void> => {
     .addRaw(summary)
     .addTable([
       [
-        {data: 'Example', header: true},
-        {data: 'Description', header: true},
-        {data: 'Message', header: true}
+        {data: 'Example :link:', header: true},
+        {data: 'Description :pencil2:', header: true},
+        {data: 'Message :x:', header: true}
       ],
       ...rows
     ])

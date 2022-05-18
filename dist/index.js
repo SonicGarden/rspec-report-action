@@ -2226,9 +2226,9 @@ const reportSummary = (result) => __awaiter(void 0, void 0, void 0, function* ()
         .addRaw(summary)
         .addTable([
         [
-            { data: 'Example', header: true },
-            { data: 'Description', header: true },
-            { data: 'Message', header: true }
+            { data: 'Example :link:', header: true },
+            { data: 'Description :pencil2:', header: true },
+            { data: 'Message :x:', header: true }
         ],
         ...rows
     ])
