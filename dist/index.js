@@ -591,7 +591,9 @@ function run() {
             }
             const result = (0, parse_1.parse)(jsonPath);
             core.info(result.summary);
-            yield (0, report_summary_1.reportSummary)(result);
+            if (!result.success) {
+                yield (0, report_summary_1.reportSummary)(result);
+            }
         }
         catch (error) {
             if (error instanceof Error) {

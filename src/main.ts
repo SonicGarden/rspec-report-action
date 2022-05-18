@@ -16,7 +16,10 @@ async function run(): Promise<void> {
 
     const result = parse(jsonPath)
     core.info(result.summary)
-    await reportSummary(result)
+
+    if (!result.success) {
+      await reportSummary(result)
+    }
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)
