@@ -4,17 +4,9 @@ A GitHub Action that report RSpec failure.
 
 ## Usage:
 
-### pull_request event
+Reported in Job Summary.
 
-Reported in issue comment.
-
-![Demo](https://i.gyazo.com/29402af7cc01eaac256bb54a3ebe8049.png)
-
-### other event
-
-Reported in check runs.
-
-![Demo](https://i.gyazo.com/9ab78f43d95155cd95fdf0f89f4cf3b0.png)
+![Demo](https://i.gyazo.com/f1367e662dbdca161e3fa8e503fb8fb3.png)
 
 ### Inputs
 
@@ -35,7 +27,7 @@ jobs:
         run: bundle exec rspec -f j -o tmp/rspec_results.json -f p
 
       - name: RSpec Report
-        uses: SonicGarden/rspec-report-action@v1
+        uses: SonicGarden/rspec-report-action@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           json-path: tmp/rspec_results.json
