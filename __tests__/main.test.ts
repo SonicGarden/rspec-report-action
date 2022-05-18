@@ -1,6 +1,5 @@
 import * as path from 'path'
 import {parse} from '../src/parse'
-import {example2Table} from '../src/table'
 import {expect, test} from '@jest/globals'
 
 test('Parse rspec result json', async () => {
@@ -9,7 +8,8 @@ test('Parse rspec result json', async () => {
     summary: '25 examples, 1 failure',
     examples: [
       {
-        example: './spec/activestorage/validator/blob_spec.rb:37',
+        filePath: 'spec/activestorage/validator/blob_spec.rb',
+        lineNumber: 37,
         description:
           'ActiveRecord::Validations::BlobValidator with size_range option 1.4MB is expected to eq true',
         message: '\nexpected: true\n     got: false\n\n(compared using ==)'
@@ -17,18 +17,4 @@ test('Parse rspec result json', async () => {
     ],
     success: false
   })
-})
-
-test('example2Table', () => {
-  const examples = [
-    {
-      example: './dummy_spec.rb:1',
-      description: 'dummy',
-      message: 'error!\nerror!'
-    }
-  ]
-  expect(example2Table(examples))
-    .toEqual(`| Example           | Description | Message       |
-| ----------------- | ----------- | ------------- |
-| ./dummy_spec.rb:1 | dummy       | error! error! |`)
 })

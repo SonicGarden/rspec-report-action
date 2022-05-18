@@ -1,4 +1,4 @@
-/* eslint-disable filenames/match-regex,import/no-commonjs */
+/* eslint-disable import/no-commonjs */
 module.exports = {
   presets: [
     [

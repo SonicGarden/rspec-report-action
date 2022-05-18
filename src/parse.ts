@@ -24,7 +24,8 @@ interface JsonResult {
 }
 
 type FailureExample = {
-  example: string
+  filePath: string
+  lineNumber: number
   description: string
   message: string
 }
@@ -50,7 +51,8 @@ export function parse(resultPath: string): RspecResult {
         description: full_description,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         message: exception!.message,
-        example: [file_path, line_number].join(':')
+        filePath: file_path.replace(/^\.\//, ''),
+        lineNumber: line_number
       }
     })
 
