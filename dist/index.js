@@ -9005,9 +9005,9 @@ const github = __importStar(__webpack_require__(469));
 const reportSummary = (result) => __awaiter(void 0, void 0, void 0, function* () {
     const icon = result.success ? ':tada:' : ':cold_sweat:';
     const summary = `${icon} ${result.summary}`;
-    const baseUrl = `${github.context.serverUrl}/${github.context.repo.owner}/${github.context.repo.repo}/blob/${github.context.sha}/`;
+    const baseUrl = `${github.context.serverUrl}/${github.context.repo.owner}/${github.context.repo.repo}/blob/${github.context.sha}`;
     const rows = result.examples.map(({ filePath, lineNumber, description, message }) => [
-        `[${filePath}:${lineNumber}](${baseUrl}/${filePath}#L${lineNumber})`,
+        `\n\n[${filePath}:${lineNumber}](${baseUrl}/${filePath}#L${lineNumber})`,
         description,
         message.replace(/\n+/g, ' ')
     ]);
