@@ -1,14 +1,19 @@
 import * as core from '@actions/core'
+import * as github from '@actions/github'
 import type {RspecResult} from './parse'
 
 export const reportSummary = async (result: RspecResult): Promise<void> => {
   const icon = result.success ? ':tada:' : ':cold_sweat:'
   const summary = `${icon} ${result.summary}`
-  const rows = result.examples.map(({example, description, message}) => [
-    example,
-    description,
-    message.replace(/\n+/g, ' ')
-  ])
+  const baseUrl = `${github.context.serverUrl}/${github.context.repo.owner}/${github.context.repo.repo}/blob/${github.context.sha}/`
+
+  const rows = result.examples.map(
+    ({filePath, lineNumber, description, message}) => [
+      `[${filePath}:${lineNumber}](${baseUrl}/${filePath}#L${lineNumber})`,
+      description,
+      message.replace(/\n+/g, ' ')
+    ]
+  )
 
   await core.summary
     .addHeading('RSpec Result')
