@@ -16,5 +16,5 @@ inputs:
     default: "# :cold_sweat: RSpec failure"
     required: false
 runs:
-  using: "node12"
+  using: "node16"
   main: "dist/index.js"
