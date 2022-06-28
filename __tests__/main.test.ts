@@ -3,7 +3,7 @@ import {parse} from '../src/parse'
 import {expect, test} from '@jest/globals'
 
 test('Parse rspec result json', async () => {
-  const result = await parse(path.resolve(__dirname, '../.dummy_results.json'))
+  const result = parse(path.resolve(__dirname, '../.dummy_results.json'))
   expect(result).toEqual({
     summary: '25 examples, 1 failure',
     examples: [
