@@ -9141,6 +9141,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.reportSummary = void 0;
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
+const FOOTER_LINK = 
+// eslint-disable-next-line i18n-text/no-en
+'Reported by [rspec-report-action](https://github.com/SonicGarden/rspec-report-action)';
 const formatMessage = (message) => {
     const lines = message
         .replace(/\\n/g, '\n')
@@ -9152,7 +9155,8 @@ const formatMessage = (message) => {
 <summary>${summary}</summary>
 
 ${bodyLines.join('<br>')}
-</details>`;
+</details>
+`;
 };
 const reportSummary = (result) => __awaiter(void 0, void 0, void 0, function* () {
     const icon = result.success ? ':tada:' : ':cold_sweat:';
@@ -9163,6 +9167,7 @@ const reportSummary = (result) => __awaiter(void 0, void 0, void 0, function* ()
         description,
         formatMessage(message)
     ]);
+    const hideFooterLink = core.getInput('hideFooterLink') === 'true';
     yield core.summary
         .addHeading('RSpec Result')
         .addRaw(summary)
@@ -9174,6 +9179,7 @@ const reportSummary = (result) => __awaiter(void 0, void 0, void 0, function* ()
         ],
         ...rows
     ])
+        .addRaw(hideFooterLink ? '' : `\n${FOOTER_LINK}`)
         .write();
 });
 exports.reportSummary = reportSummary;

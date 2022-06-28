@@ -2,6 +2,10 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import type {RspecResult} from './parse'
 
+const FOOTER_LINK =
+  // eslint-disable-next-line i18n-text/no-en
+  'Reported by [rspec-report-action](https://github.com/SonicGarden/rspec-report-action)'
+
 const formatMessage = (message: string): string => {
   const lines = message
     .replace(/\\n/g, '\n')
@@ -13,7 +17,8 @@ const formatMessage = (message: string): string => {
 <summary>${summary}</summary>
 
 ${bodyLines.join('<br>')}
-</details>`
+</details>
+`
 }
 
 export const reportSummary = async (result: RspecResult): Promise<void> => {
@@ -29,6 +34,8 @@ export const reportSummary = async (result: RspecResult): Promise<void> => {
     ]
   )
 
+  const hideFooterLink = core.getInput('hideFooterLink') === 'true'
+
   await core.summary
     .addHeading('RSpec Result')
     .addRaw(summary)
@@ -40,5 +47,6 @@ export const reportSummary = async (result: RspecResult): Promise<void> => {
       ],
       ...rows
     ])
+    .addRaw(hideFooterLink ? '' : `\n${FOOTER_LINK}`)
     .write()
 }
