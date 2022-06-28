@@ -1,6 +1,6 @@
 {
   "name": "rspec-report-action",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "TypeScript template action",
   "main": "lib/main.js",
@@ -47,5 +47,9 @@
     "prettier": "2.6.2",
     "ts-jest": "^28.0.2",
     "typescript": "^4.0.2"
+  },
+  "volta": {
+    "node": "16.15.1",
+    "yarn": "1.22.19"
   }
 }
