@@ -36,15 +36,21 @@ export type RspecResult = {
   success: boolean
 }
 
-export function parse(resultPath: string): RspecResult {
-  // eslint-disable-next-line import/no-dynamic-require,@typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports
-  const json = require(path.resolve(
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    process.env.GITHUB_WORKSPACE!,
-    resultPath
-  )) as JsonResult
+export function parse(resultPaths: string[]): RspecResult {
+  const results = resultPaths.map(resultPath => {
+    // eslint-disable-next-line import/no-dynamic-require,@typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports
+    return require(path.resolve(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      process.env.GITHUB_WORKSPACE!,
+      resultPath
+    )) as JsonResult
+  })
 
-  const examples: FailureExample[] = json.examples
+  const allExamples = results.reduce(
+    (acc, jsonResult) => acc.concat(jsonResult.examples),
+    [] as Example[]
+  )
+  const examples: FailureExample[] = allExamples
     .filter(({status}) => status === 'failed')
     .map(({file_path, line_number, full_description, exception}) => {
       return {
@@ -55,10 +61,19 @@ export function parse(resultPath: string): RspecResult {
         lineNumber: line_number
       }
     })
+  const totalExamples = allExamples.length
+  const pendingExamples = allExamples.filter(
+    example => example.pending_message !== null
+  ).length
+  const failedExamples = examples.length
 
+  let summary = `${totalExamples} examples, ${failedExamples} failures`
+  if (pendingExamples > 0) {
+    summary += `, ${pendingExamples} pending`
+  }
   return {
     examples,
-    summary: json.summary_line,
+    summary,
     success: examples.length === 0
   }
 }
