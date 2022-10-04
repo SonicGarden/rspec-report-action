@@ -20,4 +20,4 @@ jobs:
     - uses: ./
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        json-path: '.dummy_results.json'
+        json-path: '.dummy_results-0.json'
