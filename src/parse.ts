@@ -36,6 +36,24 @@ export type RspecResult = {
   success: boolean
 }
 
+function pluralize(noun: string, count: number): string {
+  if (count === 1) return noun
+  return `${noun}s`
+}
+
+function generateSummary(
+  total: number,
+  failed: number,
+  pending: number
+): string {
+  let summary = `${total} ${pluralize('example', total)}`
+  summary += `, ${failed} ${pluralize('failure', failed)}`
+  if (pending > 0) {
+    summary += `, ${pending} pending`
+  }
+  return summary
+}
+
 export function parse(resultPaths: string[]): RspecResult {
   const results = resultPaths.map(resultPath => {
     // eslint-disable-next-line import/no-dynamic-require,@typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports
@@ -62,18 +80,14 @@ export function parse(resultPaths: string[]): RspecResult {
       }
     })
   const totalExamples = allExamples.length
+  const failedExamples = examples.length
   const pendingExamples = allExamples.filter(
     example => example.pending_message !== null
   ).length
-  const failedExamples = examples.length
 
-  let summary = `${totalExamples} examples, ${failedExamples} failures`
-  if (pendingExamples > 0) {
-    summary += `, ${pendingExamples} pending`
-  }
   return {
     examples,
-    summary,
+    summary: generateSummary(totalExamples, failedExamples, pendingExamples),
     success: examples.length === 0
   }
 }
