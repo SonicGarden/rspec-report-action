@@ -13,8 +13,16 @@ test('Parse multiple rspec json results', async () => {
   mockedCore.getInput.mockReturnValue(path.resolve(__dirname, '../.dummy_results-*.json'))
   await run()
   expect(reportSummary).toHaveBeenCalledWith({
-    examples: expect.any(Array),
-    summary: '50 examples, 2 failures',
-    success: false
+    examples: [
+      {
+        filePath: 'spec/activestorage/validator/blob_spec.rb',
+        lineNumber: 37,
+        description:
+            'ActiveRecord::Validations::BlobValidator with size_range option 1.4MB is expected to eq true',
+        message: '\\nexpected: true\\n     got: false\\n\\n(compared using ==)'
+      }
+    ],
+    success: false,
+    summary: '27 examples, 1 failure, 1 pending'
   })
 })
