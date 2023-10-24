@@ -1,20 +1,25 @@
 import * as core from '@actions/core'
 import * as fs from 'fs'
+import glob from 'fast-glob'
 import {parse} from './parse'
 import {reportSummary} from './report-summary'
 
 async function run(): Promise<void> {
   try {
-    const jsonPath = core.getInput('json-path', {required: true})
+    const globPath = core.getInput('json-path', {required: true})
 
-    try {
-      fs.accessSync(jsonPath, fs.constants.R_OK)
-    } catch (err) {
-      core.warning(`${jsonPath}: access error!`)
-      return
-    }
+    let jsonPaths = await glob(globPath, {dot: true})
+    jsonPaths = jsonPaths.filter(jsonPath => {
+      try {
+        fs.accessSync(jsonPath, fs.constants.R_OK)
+        return true
+      } catch (err) {
+        core.warning(`${jsonPath}: access error!`)
+        return false
+      }
+    })
 
-    const result = parse(jsonPath)
+    const result = parse(jsonPaths)
     core.info(result.summary)
 
     if (!result.success) {
@@ -27,4 +32,7 @@ async function run(): Promise<void> {
   }
 }
 
-run()
+export default run
+if (require.main === module) {
+  run()
+}
