@@ -36,17 +36,41 @@ export type RspecResult = {
   success: boolean
 }
 
-export function parse(resultPath: string): RspecResult {
-  // eslint-disable-next-line import/no-dynamic-require,@typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports
-  const json = require(
-    path.resolve(
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      process.env.GITHUB_WORKSPACE!,
-      resultPath
-    )
-  ) as JsonResult
+function pluralize(noun: string, count: number): string {
+  if (count === 1) return noun
+  return `${noun}s`
+}
 
-  const examples: FailureExample[] = json.examples
+function generateSummary(
+  total: number,
+  failed: number,
+  pending: number
+): string {
+  let summary = `${total} ${pluralize('example', total)}`
+  summary += `, ${failed} ${pluralize('failure', failed)}`
+  if (pending > 0) {
+    summary += `, ${pending} pending`
+  }
+  return summary
+}
+
+export function parse(resultPaths: string[]): RspecResult {
+  const results = resultPaths.map(resultPath => {
+    // eslint-disable-next-line import/no-dynamic-require,@typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports
+    return require(
+      path.resolve(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        process.env.GITHUB_WORKSPACE!,
+        resultPath
+      )
+    ) as JsonResult
+  })
+
+  const allExamples = results.reduce(
+    (acc, jsonResult) => acc.concat(jsonResult.examples),
+    [] as Example[]
+  )
+  const examples: FailureExample[] = allExamples
     .filter(({status}) => status === 'failed')
     .map(({file_path, line_number, full_description, exception}) => {
       return {
@@ -57,10 +81,15 @@ export function parse(resultPath: string): RspecResult {
         lineNumber: line_number
       }
     })
+  const totalExamples = allExamples.length
+  const failedExamples = examples.length
+  const pendingExamples = allExamples.filter(
+    example => example.pending_message !== null
+  ).length
 
   return {
     examples,
-    summary: json.summary_line,
+    summary: generateSummary(totalExamples, failedExamples, pendingExamples),
     success: examples.length === 0
   }
 }

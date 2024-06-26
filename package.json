@@ -26,7 +26,8 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.9.1",
-    "@actions/github": "^6.0.0"
+    "@actions/github": "^6.0.0",
+    "fast-glob": "^3.2.12"
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.15.0",

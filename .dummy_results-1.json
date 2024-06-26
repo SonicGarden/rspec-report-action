@@ -1,0 +1,33 @@
+{
+  "version":"3.9.2",
+  "examples":[
+    {
+       "id":"./spec/activestorage/validator/blob_spec.rb[1:1:1:1]",
+       "description":"is expected to eq false",
+       "full_description":"ActiveRecord::Validations::BlobValidator presence: true has_one_attached is expected to eq false",
+       "status":"passed",
+       "file_path":"./spec/activestorage/validator/blob_spec.rb",
+       "line_number":10,
+       "run_time":0.016242,
+       "pending_message":null
+    },
+    {
+      "id":"./spec/activestorage/validator/blob_spec.rb[1:1:1:2]",
+      "description":"is expected to eq true",
+      "full_description":"ActiveRecord::Validations::BlobValidator presence: true has_one_attached is expected to eq true",
+      "status":"passed",
+      "file_path":"./spec/activestorage/validator/blob_spec.rb",
+      "line_number":11,
+      "run_time":0.044519,
+      "pending_message": "Not yet implemented"
+    }
+  ],
+  "summary":{
+    "duration":0.297397,
+    "example_count":1,
+    "failure_count":0,
+    "pending_count":0,
+    "errors_outside_of_examples_count":0
+  },
+  "summary_line":"1 example, 0 failures, 1 pending"
+}
