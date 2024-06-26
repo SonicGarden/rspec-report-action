@@ -1,11 +1,20 @@
 import * as path from 'path'
-import {parse} from '../src/parse'
-import {expect, test} from '@jest/globals'
+import * as core from '@actions/core'
+import {reportSummary} from '../src/report-summary'
+import run from '../src/main'
 
-test('Parse rspec result json', async () => {
-  const result = parse(path.resolve(__dirname, '../.dummy_results.json'))
-  expect(result).toEqual({
-    summary: '25 examples, 1 failure',
+import {expect, jest, test} from '@jest/globals'
+
+jest.mock('@actions/core')
+jest.mock('../src/report-summary')
+const mockedCore = jest.mocked(core)
+
+test('Parse multiple rspec json results', async () => {
+  mockedCore.getInput.mockReturnValue(
+    path.resolve(__dirname, '../.dummy_results-*.json')
+  )
+  await run()
+  expect(reportSummary).toHaveBeenCalledWith({
     examples: [
       {
         filePath: 'spec/activestorage/validator/blob_spec.rb',
@@ -15,6 +24,7 @@ test('Parse rspec result json', async () => {
         message: '\\nexpected: true\\n     got: false\\n\\n(compared using ==)'
       }
     ],
-    success: false
+    success: false,
+    summary: '27 examples, 1 failure, 1 pending'
   })
 })
