@@ -11,7 +11,7 @@ Reported in Job Summary.
 ### Inputs
 
 - `token` - The GITHUB_TOKEN secret.
-- `json-path` - Path to RSpec result json file.
+- `json-path` - Path to RSpec result json file. (Support for glob pattern)
 
 ## Example
 
