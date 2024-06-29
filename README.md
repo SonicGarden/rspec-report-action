@@ -10,8 +10,12 @@ Reported in Job Summary.
 
 ### Inputs
 
-- `token` - The GITHUB_TOKEN secret.
-- `json-path` - Path to RSpec result json file. (Support for glob pattern)
+See [action.yml](action.yml)
+
+| Name | Description | Default | Required |
+| - | - | - | - |
+| `json-path` | Path to RSpec result json file. (Support for glob pattern) | | yes |
+| `token` | GITHUB_TOKEN | `${{ github.token }}` | no |
 
 ## Example
 
@@ -31,7 +35,6 @@ jobs:
       - name: RSpec Report
         uses: SonicGarden/rspec-report-action@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           json-path: tmp/rspec_results.json
         if: always()
 ```
@@ -92,6 +95,5 @@ jobs:
       - name: RSpec Report
         uses: SonicGarden/rspec-report-action@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           json-path: /tmp/json-reports/rspec_results-*.json
 ```
