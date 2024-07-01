@@ -16,6 +16,9 @@ See [action.yml](action.yml)
 | - | - | - | - |
 | `json-path` | Path to RSpec result json file. (Support for glob pattern) | | yes |
 | `token` | GITHUB_TOKEN | `${{ github.token }}` | no |
+| `title` | Summary title | `# :cold_sweat: RSpec failure` | no |
+| `hideFooterLink` | Hide footer link | `false` | no |
+| `comment` | Set this if want to comment report to pull request | `true` | no |
 
 ## Example
 
@@ -33,7 +36,7 @@ jobs:
         run: bundle exec rspec -f j -o tmp/rspec_results.json -f p
 
       - name: RSpec Report
-        uses: SonicGarden/rspec-report-action@v4
+        uses: SonicGarden/rspec-report-action@v5
         with:
           json-path: tmp/rspec_results.json
         if: always()
@@ -93,7 +96,7 @@ jobs:
           path: /tmp/json-reports
           merge-multiple: true
       - name: RSpec Report
-        uses: SonicGarden/rspec-report-action@v4
+        uses: SonicGarden/rspec-report-action@v5
         with:
           json-path: /tmp/json-reports/rspec_results-*.json
 ```

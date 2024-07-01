@@ -20,6 +20,10 @@ inputs:
     description: "Hide footer link"
     default: "false"
     required: false
+  comment:
+    description: "Set this if want to comment report to pull request"
+    default: "true"
+    required: false
 runs:
   using: "node20"
   main: "dist/index.js"

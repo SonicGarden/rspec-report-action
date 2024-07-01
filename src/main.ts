@@ -1,8 +1,10 @@
 import * as core from '@actions/core'
+import * as github from '@actions/github'
 import * as fs from 'fs'
 import glob from 'fast-glob'
 import {parse} from './parse'
 import {reportSummary} from './report-summary'
+import {reportComment} from './report-comment'
 
 async function run(): Promise<void> {
   try {
@@ -19,11 +21,15 @@ async function run(): Promise<void> {
       }
     })
 
-    const result = parse(jsonPaths)
+    const result = await parse(jsonPaths)
     core.info(result.summary)
 
     if (!result.success) {
       await reportSummary(result)
+    }
+
+    if (core.getInput('comment') === 'true' && github.context.issue.number) {
+      await reportComment(result)
     }
   } catch (error) {
     if (error instanceof Error) {

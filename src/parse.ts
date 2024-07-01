@@ -1,4 +1,5 @@
 import path from 'path'
+import {readFile} from 'fs/promises'
 
 interface Exception {
   class: string
@@ -54,17 +55,17 @@ function generateSummary(
   return summary
 }
 
-export function parse(resultPaths: string[]): RspecResult {
-  const results = resultPaths.map(resultPath => {
-    // eslint-disable-next-line import/no-dynamic-require,@typescript-eslint/no-var-requires,@typescript-eslint/no-require-imports
-    return require(
-      path.resolve(
+export async function parse(resultPaths: string[]): Promise<RspecResult> {
+  const promises = resultPaths.map(async resultPath => {
+    return JSON.parse(
+      await readFile(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        process.env.GITHUB_WORKSPACE!,
-        resultPath
+        path.resolve(process.env.GITHUB_WORKSPACE!, resultPath),
+        'utf-8'
       )
     ) as JsonResult
   })
+  const results = await Promise.all(promises)
 
   const allExamples = results.reduce(
     (acc, jsonResult) => acc.concat(jsonResult.examples),

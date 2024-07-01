@@ -1,6 +1,6 @@
 {
   "name": "rspec-report-action",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "private": true,
   "description": "TypeScript template action",
   "main": "lib/main.js",
@@ -9,9 +9,9 @@
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "lint": "eslint src/**/*.ts",
-    "pack": "ncc build",
+    "package": "npx ncc build src/main.ts -o dist --source-map --license licenses.txt",
     "test": "jest",
-    "all": "npm run build && npm run format && npm run lint && npm run pack && npm test"
+    "all": "pnpm run build && pnpm run format && pnpm run lint && pnpm run package && pnpm test"
   },
   "repository": {
     "type": "git",
@@ -22,16 +22,22 @@
     "node",
     "setup"
   ],
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "author": "aki77",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.9.1",
     "@actions/github": "^6.0.0",
-    "fast-glob": "^3.2.12"
+    "@aki77/actions-replace-comment": "^0.6.1",
+    "fast-glob": "^3.2.12",
+    "markdown-table": "^3.0.3"
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
+    "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.1",
     "@types/node": "^20.8.8",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
@@ -52,5 +58,6 @@
   "volta": {
     "node": "20.15.0",
     "yarn": "1.22.19"
-  }
+  },
+  "packageManager": "pnpm@9.4.0+sha512.f549b8a52c9d2b8536762f99c0722205efc5af913e77835dbccc3b0b0b2ca9e7dc8022b78062c17291c48e88749c70ce88eb5a74f1fa8c4bf5e18bb46c8bd83a"
 }
