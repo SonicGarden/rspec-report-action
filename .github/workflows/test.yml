@@ -10,12 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - run: corepack enable
     - uses: actions/setup-node@v4
       with:
         node-version-file: "package.json"
+        cache: pnpm
     - run: |
-        yarn install
-        yarn all
+        pnpm install
+        pnpm run all
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
