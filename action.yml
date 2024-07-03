@@ -24,6 +24,9 @@ inputs:
     description: "Set this if want to comment report to pull request"
     default: "true"
     required: false
+  pull-request-id:
+    description: "ID of the pull request to comment the report on"
+    required: false
 runs:
   using: "node20"
   main: "dist/index.js"

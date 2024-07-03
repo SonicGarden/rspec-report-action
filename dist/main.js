@@ -52,7 +52,9 @@ async function run() {
         if (!result.success) {
             await (0, report_summary_1.reportSummary)(result);
         }
-        if (core.getInput('comment') === 'true' && github.context.issue.number) {
+        const isCommentEnabled = core.getInput('comment') === 'true';
+        const pullRequestNumber = core.getInput('pull-request-id') || github.context.issue.number;
+        if (isCommentEnabled && pullRequestNumber) {
             await (0, report_comment_1.reportComment)(result);
         }
     }

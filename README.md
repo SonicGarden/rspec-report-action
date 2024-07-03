@@ -19,6 +19,7 @@ See [action.yml](action.yml)
 | `title` | Summary title | `# :cold_sweat: RSpec failure` | no |
 | `hideFooterLink` | Hide footer link | `false` | no |
 | `comment` | Set this if want to comment report to pull request | `true` | no |
+| `pull-request-id` | ID of the pull request to comment the report on | | no |
 
 ## Example
 
@@ -99,4 +100,41 @@ jobs:
         uses: SonicGarden/rspec-report-action@v5
         with:
           json-path: /tmp/json-reports/rspec_results-*.json
+```
+
+## Push Event Test
+```yaml
+name: Build
+on:
+  push:
+
+jobs:
+  rspec:
+    steps:
+      # setup...
+
+      - name: Test
+        continue-on-error: true
+        run: bundle exec rspec -f j -o tmp/rspec_results.json -f p
+
+      - name: Find open or draft PR associated with commit and branch
+        id: find_pr
+        continue-on-error: true
+        run: |
+          pr_json=$(gh pr list --state open --head "${{ github.ref_name }}" --json number,commits --jq '.[] | select(.commits | any(.oid == "${{ github.sha }}")) | {number: .number}')
+          if [ -z "$pr_json" ]; then
+            echo "No open or draft PR found for commit SHA: ${{ github.sha }} on branch: ${{ github.ref_name }}"
+            exit 1
+          else
+            echo "pr_json=$pr_json" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: RSpec Report
+        if: steps.find_pr.outcome == 'success'
+        uses: SonicGarden/rspec-report-action@v5
+        with:
+          json-path: tmp/rspec_results.json
+          pull-request-id: ${{ fromJson(steps.find_pr.outputs.pr_json).number }}
 ```

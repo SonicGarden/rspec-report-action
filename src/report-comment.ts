@@ -26,7 +26,11 @@ type CommentGeneralOptions = {
 }
 
 const commentGeneralOptions = (): CommentGeneralOptions => {
-  const pullRequestId = github.context.issue.number
+  const pullRequestId =
+    Number(core.getInput('pull-request-id')) || github.context.issue.number
+
+  core.info(`PR id: ${pullRequestId}`)
+
   if (!pullRequestId) {
     throw new Error('Cannot find the PR id.')
   }

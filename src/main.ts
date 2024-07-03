@@ -28,7 +28,11 @@ async function run(): Promise<void> {
       await reportSummary(result)
     }
 
-    if (core.getInput('comment') === 'true' && github.context.issue.number) {
+    const isCommentEnabled = core.getInput('comment') === 'true'
+    const pullRequestNumber =
+      core.getInput('pull-request-id') || github.context.issue.number
+
+    if (isCommentEnabled && pullRequestNumber) {
       await reportComment(result)
     }
   } catch (error) {
