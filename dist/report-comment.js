@@ -28,7 +28,11 @@ exports.examples2Table = examples2Table;
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const actions_replace_comment_1 = __importStar(require("@aki77/actions-replace-comment"));
-const MAX_TABLE_ROWS = 30;
+const MAX_TABLE_ROWS = 20;
+const MAX_MESSAGE_LENGTH = 200;
+const truncate = (str, maxLength) => {
+    return str.length > maxLength ? `${str.slice(0, maxLength)}...` : str;
+};
 async function examples2Table(examples) {
     const { markdownTable } = await import('markdown-table');
     return markdownTable([
@@ -38,7 +42,10 @@ async function examples2Table(examples) {
             .map(({ filePath, lineNumber, description, message }) => [
             [filePath, lineNumber].join(':'),
             description,
-            message.replace(/\\n/g, ' ').trim().replace(/\s+/g, '&nbsp;')
+            truncate(message, MAX_MESSAGE_LENGTH)
+                .replace(/\\n/g, ' ')
+                .trim()
+                .replace(/\s+/g, '&nbsp;')
         ])
     ]);
 }

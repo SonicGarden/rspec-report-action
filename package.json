@@ -30,7 +30,7 @@
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@actions/github": "^6.0.0",
-    "@aki77/actions-replace-comment": "^0.6.2",
+    "@aki77/actions-replace-comment": "0.6.1",
     "fast-glob": "^3.3.2",
     "markdown-table": "^3.0.3"
   },
