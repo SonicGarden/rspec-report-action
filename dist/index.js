@@ -39267,11 +39267,14 @@ exports.examples2Table = examples2Table;
 const core = __importStar(__nccwpck_require__(9093));
 const github = __importStar(__nccwpck_require__(5942));
 const actions_replace_comment_1 = __importStar(__nccwpck_require__(5518));
+const MAX_TABLE_ROWS = 30;
 async function examples2Table(examples) {
     const { markdownTable } = await __nccwpck_require__.e(/* import() */ 448).then(__nccwpck_require__.bind(__nccwpck_require__, 6850));
     return markdownTable([
         ['Example', 'Description', 'Message'],
-        ...examples.map(({ filePath, lineNumber, description, message }) => [
+        ...examples
+            .slice(0, MAX_TABLE_ROWS)
+            .map(({ filePath, lineNumber, description, message }) => [
             [filePath, lineNumber].join(':'),
             description,
             message.replace(/\\n/g, ' ').trim().replace(/\s+/g, '&nbsp;')

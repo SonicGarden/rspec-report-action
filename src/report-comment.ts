@@ -3,6 +3,8 @@ import * as github from '@actions/github'
 import type {RspecResult} from './parse'
 import replaceComment, {deleteComment} from '@aki77/actions-replace-comment'
 
+const MAX_TABLE_ROWS = 30
+
 export async function examples2Table(
   examples: RspecResult['examples']
 ): Promise<string> {
@@ -10,11 +12,13 @@ export async function examples2Table(
 
   return markdownTable([
     ['Example', 'Description', 'Message'],
-    ...examples.map(({filePath, lineNumber, description, message}) => [
-      [filePath, lineNumber].join(':'),
-      description,
-      message.replace(/\\n/g, ' ').trim().replace(/\s+/g, '&nbsp;')
-    ])
+    ...examples
+      .slice(0, MAX_TABLE_ROWS)
+      .map(({filePath, lineNumber, description, message}) => [
+        [filePath, lineNumber].join(':'),
+        description,
+        message.replace(/\\n/g, ' ').trim().replace(/\s+/g, '&nbsp;')
+      ])
   ])
 }
 

@@ -28,11 +28,14 @@ exports.examples2Table = examples2Table;
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const actions_replace_comment_1 = __importStar(require("@aki77/actions-replace-comment"));
+const MAX_TABLE_ROWS = 30;
 async function examples2Table(examples) {
     const { markdownTable } = await import('markdown-table');
     return markdownTable([
         ['Example', 'Description', 'Message'],
-        ...examples.map(({ filePath, lineNumber, description, message }) => [
+        ...examples
+            .slice(0, MAX_TABLE_ROWS)
+            .map(({ filePath, lineNumber, description, message }) => [
             [filePath, lineNumber].join(':'),
             description,
             message.replace(/\\n/g, ' ').trim().replace(/\s+/g, '&nbsp;')
