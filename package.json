@@ -1,6 +1,6 @@
 {
   "name": "rspec-report-action",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "private": true,
   "description": "TypeScript template action",
   "main": "lib/main.js",
