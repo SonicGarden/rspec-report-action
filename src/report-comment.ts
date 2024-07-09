@@ -3,6 +3,13 @@ import * as github from '@actions/github'
 import type {RspecResult} from './parse'
 import replaceComment, {deleteComment} from '@aki77/actions-replace-comment'
 
+const MAX_TABLE_ROWS = 20
+const MAX_MESSAGE_LENGTH = 200
+
+const truncate = (str: string, maxLength: number): string => {
+  return str.length > maxLength ? `${str.slice(0, maxLength)}...` : str
+}
+
 export async function examples2Table(
   examples: RspecResult['examples']
 ): Promise<string> {
@@ -10,11 +17,16 @@ export async function examples2Table(
 
   return markdownTable([
     ['Example', 'Description', 'Message'],
-    ...examples.map(({filePath, lineNumber, description, message}) => [
-      [filePath, lineNumber].join(':'),
-      description,
-      message.replace(/\\n/g, ' ').trim().replace(/\s+/g, '&nbsp;')
-    ])
+    ...examples
+      .slice(0, MAX_TABLE_ROWS)
+      .map(({filePath, lineNumber, description, message}) => [
+        [filePath, lineNumber].join(':'),
+        description,
+        truncate(message, MAX_MESSAGE_LENGTH)
+          .replace(/\\n/g, ' ')
+          .trim()
+          .replace(/\s+/g, '&nbsp;')
+      ])
   ])
 }
 
