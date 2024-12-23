@@ -15,7 +15,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       '@aki77/actions-replace-comment':
-        specifier: ^0.6.1
+        specifier: 0.6.1
         version: 0.6.1
       fast-glob:
         specifier: ^3.3.2
