@@ -33,6 +33,7 @@ const fast_glob_1 = __importDefault(require("fast-glob"));
 const parse_1 = require("./parse");
 const report_summary_1 = require("./report-summary");
 const report_comment_1 = require("./report-comment");
+const profile_comment_1 = require("./profile-comment");
 async function run() {
     try {
         const globPath = core.getInput('json-path', { required: true });
@@ -54,6 +55,9 @@ async function run() {
         }
         if (core.getInput('comment') === 'true' && github.context.issue.number) {
             await (0, report_comment_1.reportComment)(result);
+        }
+        if (github.context.issue.number) {
+            await (0, profile_comment_1.reportProfileComment)(result);
         }
     }
     catch (error) {

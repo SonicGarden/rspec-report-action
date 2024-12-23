@@ -5,6 +5,7 @@ import glob from 'fast-glob'
 import {parse} from './parse'
 import {reportSummary} from './report-summary'
 import {reportComment} from './report-comment'
+import {reportProfileComment} from './profile-comment'
 
 async function run(): Promise<void> {
   try {
@@ -30,6 +31,9 @@ async function run(): Promise<void> {
 
     if (core.getInput('comment') === 'true' && github.context.issue.number) {
       await reportComment(result)
+    }
+    if (github.context.issue.number) {
+      await reportProfileComment(result)
     }
   } catch (error) {
     if (error instanceof Error) {
