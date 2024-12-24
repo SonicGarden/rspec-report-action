@@ -30,6 +30,7 @@ exports.reportProfileComment = void 0;
 exports.examples2Table = examples2Table;
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
+const util_1 = require("./util");
 const actions_replace_comment_1 = __importDefault(require("@aki77/actions-replace-comment"));
 async function examples2Table(examples) {
     const { markdownTable } = await import('markdown-table');
@@ -38,7 +39,7 @@ async function examples2Table(examples) {
         ...examples.map(({ filePath, lineNumber, description, runTime }) => [
             [filePath, lineNumber].join(':'),
             description,
-            String(runTime)
+            String((0, util_1.floor)(runTime, 5))
         ])
     ]);
 }
@@ -59,7 +60,7 @@ const slowestExamplesSummary = (result) => {
     const slowTotalTime = result.slowExamples.reduce((total, { runTime }) => total + runTime, 0);
     const percentage = (slowTotalTime / totalTime) * 100;
     // eslint-disable-next-line i18n-text/no-en
-    return `Top ${result.slowExamples.length} slowest examples (${slowTotalTime} seconds, ${percentage}% of total time)`;
+    return `Top ${result.slowExamples.length} slowest examples (${(0, util_1.floor)(slowTotalTime, 2)} seconds, ${(0, util_1.floor)(percentage, 2)}% of total time)`;
 };
 const reportProfileComment = async (result) => {
     const title = core.getInput('profileTitle', { required: true });

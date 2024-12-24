@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import type {RspecResult} from './parse'
+import {floor} from './util'
 import replaceComment from '@aki77/actions-replace-comment'
 
 export async function examples2Table(
@@ -13,7 +14,7 @@ export async function examples2Table(
     ...examples.map(({filePath, lineNumber, description, runTime}) => [
       [filePath, lineNumber].join(':'),
       description,
-      String(runTime)
+      String(floor(runTime, 5))
     ])
   ])
 }
@@ -47,7 +48,7 @@ const slowestExamplesSummary = (result: RspecResult): string => {
   )
   const percentage = (slowTotalTime / totalTime) * 100
   // eslint-disable-next-line i18n-text/no-en
-  return `Top ${result.slowExamples.length} slowest examples (${slowTotalTime} seconds, ${percentage}% of total time)`
+  return `Top ${result.slowExamples.length} slowest examples (${floor(slowTotalTime, 2)} seconds, ${floor(percentage, 2)}% of total time)`
 }
 
 export const reportProfileComment = async (

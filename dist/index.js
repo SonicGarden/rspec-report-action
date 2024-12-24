@@ -39287,6 +39287,7 @@ exports.reportProfileComment = void 0;
 exports.examples2Table = examples2Table;
 const core = __importStar(__nccwpck_require__(9093));
 const github = __importStar(__nccwpck_require__(5942));
+const util_1 = __nccwpck_require__(8438);
 const actions_replace_comment_1 = __importDefault(__nccwpck_require__(5518));
 async function examples2Table(examples) {
     const { markdownTable } = await __nccwpck_require__.e(/* import() */ 448).then(__nccwpck_require__.bind(__nccwpck_require__, 6850));
@@ -39295,7 +39296,7 @@ async function examples2Table(examples) {
         ...examples.map(({ filePath, lineNumber, description, runTime }) => [
             [filePath, lineNumber].join(':'),
             description,
-            String(runTime)
+            String((0, util_1.floor)(runTime, 5))
         ])
     ]);
 }
@@ -39316,7 +39317,7 @@ const slowestExamplesSummary = (result) => {
     const slowTotalTime = result.slowExamples.reduce((total, { runTime }) => total + runTime, 0);
     const percentage = (slowTotalTime / totalTime) * 100;
     // eslint-disable-next-line i18n-text/no-en
-    return `Top ${result.slowExamples.length} slowest examples (${slowTotalTime} seconds, ${percentage}% of total time)`;
+    return `Top ${result.slowExamples.length} slowest examples (${(0, util_1.floor)(slowTotalTime, 2)} seconds, ${(0, util_1.floor)(percentage, 2)}% of total time)`;
 };
 const reportProfileComment = async (result) => {
     const title = core.getInput('profileTitle', { required: true });
@@ -39506,6 +39507,22 @@ const reportSummary = async (result) => {
         .write();
 };
 exports.reportSummary = reportSummary;
+
+
+/***/ }),
+
+/***/ 8438:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.floor = void 0;
+const floor = (n, ndigits) => {
+    const shift = Math.pow(10, ndigits);
+    return Math.floor(n * shift) / shift;
+};
+exports.floor = floor;
 
 
 /***/ }),
