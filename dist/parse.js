@@ -38,13 +38,27 @@ async function parse(resultPaths) {
             lineNumber: line_number
         };
     });
+    const slowExamples = [...allExamples]
+        .sort((a, b) => b.run_time - a.run_time)
+        .slice(0, 10)
+        .map(({ file_path, line_number, full_description, run_time }) => {
+        return {
+            description: full_description,
+            filePath: file_path.replace(/^\.\//, ''),
+            lineNumber: line_number,
+            runTime: run_time
+        };
+    });
     const totalExamples = allExamples.length;
     const failedExamples = examples.length;
     const pendingExamples = allExamples.filter(example => example.pending_message !== null).length;
+    const totalTime = allExamples.reduce((total, { run_time }) => total + run_time, 0);
     return {
         examples,
+        slowExamples,
         summary: generateSummary(totalExamples, failedExamples, pendingExamples),
-        success: examples.length === 0
+        success: examples.length === 0,
+        totalTime
     };
 }
 //# sourceMappingURL=parse.js.map

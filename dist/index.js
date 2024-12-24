@@ -39139,6 +39139,7 @@ const fast_glob_1 = __importDefault(__nccwpck_require__(6581));
 const parse_1 = __nccwpck_require__(1539);
 const report_summary_1 = __nccwpck_require__(4353);
 const report_comment_1 = __nccwpck_require__(2389);
+const profile_comment_1 = __nccwpck_require__(4683);
 async function run() {
     try {
         const globPath = core.getInput('json-path', { required: true });
@@ -39160,6 +39161,9 @@ async function run() {
         }
         if (core.getInput('comment') === 'true' && github.context.issue.number) {
             await (0, report_comment_1.reportComment)(result);
+        }
+        if (github.context.issue.number) {
+            await (0, profile_comment_1.reportProfileComment)(result);
         }
     }
     catch (error) {
@@ -39220,15 +39224,117 @@ async function parse(resultPaths) {
             lineNumber: line_number
         };
     });
+    const slowExamples = [...allExamples]
+        .sort((a, b) => b.run_time - a.run_time)
+        .slice(0, 10)
+        .map(({ file_path, line_number, full_description, run_time }) => {
+        return {
+            description: full_description,
+            filePath: file_path.replace(/^\.\//, ''),
+            lineNumber: line_number,
+            runTime: run_time
+        };
+    });
     const totalExamples = allExamples.length;
     const failedExamples = examples.length;
     const pendingExamples = allExamples.filter(example => example.pending_message !== null).length;
+    const totalTime = allExamples.reduce((total, { run_time }) => total + run_time, 0);
     return {
         examples,
+        slowExamples,
         summary: generateSummary(totalExamples, failedExamples, pendingExamples),
-        success: examples.length === 0
+        success: examples.length === 0,
+        totalTime
     };
 }
+
+
+/***/ }),
+
+/***/ 4683:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.reportProfileComment = void 0;
+exports.examples2Table = examples2Table;
+const core = __importStar(__nccwpck_require__(9093));
+const github = __importStar(__nccwpck_require__(5942));
+const util_1 = __nccwpck_require__(8438);
+const actions_replace_comment_1 = __importDefault(__nccwpck_require__(5518));
+async function examples2Table(examples) {
+    const { markdownTable } = await __nccwpck_require__.e(/* import() */ 448).then(__nccwpck_require__.bind(__nccwpck_require__, 6850));
+    return markdownTable([
+        ['Example', 'Description', 'Time in seconds'],
+        ...examples.map(({ filePath, lineNumber, description, runTime }) => [
+            [filePath, lineNumber].join(':'),
+            description,
+            String((0, util_1.floor)(runTime, 5))
+        ])
+    ]);
+}
+const commentGeneralOptions = () => {
+    const pullRequestId = github.context.issue.number;
+    if (!pullRequestId) {
+        throw new Error('Cannot find the PR id.');
+    }
+    return {
+        token: core.getInput('token', { required: true }),
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        issue_number: pullRequestId
+    };
+};
+const slowestExamplesSummary = (result) => {
+    const totalTime = result.totalTime;
+    const slowTotalTime = result.slowExamples.reduce((total, { runTime }) => total + runTime, 0);
+    const percentage = (slowTotalTime / totalTime) * 100;
+    // eslint-disable-next-line i18n-text/no-en
+    return `Top ${result.slowExamples.length} slowest examples (${(0, util_1.floor)(slowTotalTime, 2)} seconds, ${(0, util_1.floor)(percentage, 2)}% of total time)`;
+};
+const reportProfileComment = async (result) => {
+    const title = core.getInput('profileTitle', { required: true });
+    const summary = slowestExamplesSummary(result);
+    await (0, actions_replace_comment_1.default)({
+        ...commentGeneralOptions(),
+        body: `${title}
+<details>
+<summary>${summary}</summary>
+
+${await examples2Table(result.slowExamples)}
+
+</details>
+`
+    });
+};
+exports.reportProfileComment = reportProfileComment;
 
 
 /***/ }),
@@ -39401,6 +39507,22 @@ const reportSummary = async (result) => {
         .write();
 };
 exports.reportSummary = reportSummary;
+
+
+/***/ }),
+
+/***/ 8438:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.floor = void 0;
+const floor = (n, ndigits) => {
+    const shift = Math.pow(10, ndigits);
+    return Math.floor(n * shift) / shift;
+};
+exports.floor = floor;
 
 
 /***/ }),
