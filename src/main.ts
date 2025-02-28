@@ -31,8 +31,6 @@ async function run(): Promise<void> {
 
     if (core.getInput('comment') === 'true' && github.context.issue.number) {
       await reportComment(result)
-    }
-    if (github.context.issue.number) {
       await reportProfileComment(result)
     }
   } catch (error) {
