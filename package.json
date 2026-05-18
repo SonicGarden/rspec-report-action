@@ -68,5 +68,5 @@
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "*"
   },
-  "packageManager": "pnpm@10.33.4+sha512.HGezs1my1AgRm6HtKJ80uPw8aHNBK+xv0mT73IJInlEPy+y5zp0i2ufzt2Jp2EQQRgFL3KU7mXnNelYa1jG4AA=="
+  "packageManager": "pnpm@10.33.4"
 }
