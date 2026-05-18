@@ -1,22 +1,22 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import * as fs from 'fs'
+import * as fs from 'node:fs'
 import glob from 'fast-glob'
-import {parse} from './parse'
-import {reportSummary} from './report-summary'
-import {reportComment} from './report-comment'
-import {reportProfileComment} from './profile-comment'
+import { parse } from './parse.js'
+import { reportSummary } from './report-summary.js'
+import { reportComment } from './report-comment.js'
+import { reportProfileComment } from './profile-comment.js'
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   try {
-    const globPath = core.getInput('json-path', {required: true})
+    const globPath = core.getInput('json-path', { required: true })
 
-    let jsonPaths = await glob(globPath, {dot: true})
-    jsonPaths = jsonPaths.filter(jsonPath => {
+    let jsonPaths = await glob(globPath, { dot: true })
+    jsonPaths = jsonPaths.filter((jsonPath) => {
       try {
         fs.accessSync(jsonPath, fs.constants.R_OK)
         return true
-      } catch (err) {
+      } catch {
         core.warning(`${jsonPath}: access error!`)
         return false
       }
@@ -38,9 +38,4 @@ async function run(): Promise<void> {
       core.setFailed(error.message)
     }
   }
-}
-
-export default run
-if (require.main === module) {
-  run()
 }

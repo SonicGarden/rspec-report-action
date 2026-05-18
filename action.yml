@@ -1,33 +1,33 @@
-name: "RSpec Report"
-description: "A GitHub Action that report RSpec failure."
+name: 'RSpec Report'
+description: 'A GitHub Action that report RSpec failure.'
 branding:
   icon: alert-triangle
   color: red
-author: "aki77"
+author: 'aki77'
 inputs:
   token:
-    description: "Github token"
+    description: 'Github token'
     required: false
-    default: "${{ github.token }}"
+    default: '${{ github.token }}'
   json-path:
-    description: "JSON File path"
+    description: 'JSON File path'
     required: true
   title:
-    description: "Title"
-    default: "# :cold_sweat: RSpec failure"
+    description: 'Title'
+    default: '# :cold_sweat: RSpec failure'
     required: false
   hideFooterLink:
-    description: "Hide footer link"
-    default: "false"
+    description: 'Hide footer link'
+    default: 'false'
     required: false
   comment:
-    description: "Set this if want to comment report to pull request"
-    default: "true"
+    description: 'Set this if want to comment report to pull request'
+    default: 'true'
     required: false
   profileTitle:
-    description: "Title for profile"
-    default: "# Slowest examples"
+    description: 'Title for profile'
+    default: '# Slowest examples'
     required: false
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: 'node24'
+  main: 'dist/index.js'

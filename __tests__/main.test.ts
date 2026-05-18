@@ -1,18 +1,32 @@
-import * as path from 'path'
-import * as core from '@actions/core'
-import {reportSummary} from '../src/report-summary'
-import run from '../src/main'
+import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { expect, jest, test } from '@jest/globals'
 
-import {expect, jest, test} from '@jest/globals'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-jest.mock('@actions/core')
-jest.mock('../src/report-summary')
-const mockedCore = jest.mocked(core)
+const getInput = jest.fn<(name: string) => string>()
+const info = jest.fn()
+const warning = jest.fn()
+const setFailed = jest.fn()
+
+jest.unstable_mockModule('@actions/core', () => ({
+  getInput,
+  info,
+  warning,
+  setFailed,
+  debug: jest.fn(),
+  setOutput: jest.fn()
+}))
+
+const reportSummary = jest.fn()
+jest.unstable_mockModule('../src/report-summary.js', () => ({
+  reportSummary
+}))
+
+const { run } = await import('../src/main.js')
 
 test('Parse multiple rspec json results', async () => {
-  mockedCore.getInput.mockReturnValue(
-    path.resolve(__dirname, '../.dummy_results-*.json')
-  )
+  getInput.mockReturnValue(path.resolve(__dirname, '../.dummy_results-*.json'))
   await run()
 
   expect(reportSummary).toHaveBeenCalledWith({

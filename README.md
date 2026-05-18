@@ -12,13 +12,13 @@ Reported in Job Summary.
 
 See [action.yml](action.yml)
 
-| Name | Description | Default | Required |
-| - | - | - | - |
-| `json-path` | Path to RSpec result json file. (Support for glob pattern) | | yes |
-| `token` | GITHUB_TOKEN | `${{ github.token }}` | no |
-| `title` | Summary title | `# :cold_sweat: RSpec failure` | no |
-| `hideFooterLink` | Hide footer link | `false` | no |
-| `comment` | Set this if want to comment report to pull request | `true` | no |
+| Name             | Description                                                | Default                        | Required |
+| ---------------- | ---------------------------------------------------------- | ------------------------------ | -------- |
+| `json-path`      | Path to RSpec result json file. (Support for glob pattern) |                                | yes      |
+| `token`          | GITHUB_TOKEN                                               | `${{ github.token }}`          | no       |
+| `title`          | Summary title                                              | `# :cold_sweat: RSpec failure` | no       |
+| `hideFooterLink` | Hide footer link                                           | `false`                        | no       |
+| `comment`        | Set this if want to comment report to pull request         | `true`                         | no       |
 
 ## Example
 
@@ -43,6 +43,7 @@ jobs:
 ```
 
 ## Parallel Test Example
+
 ```yaml
 name: Build
 on:

@@ -1,4 +1,4 @@
-name: "build-test"
+name: 'build-test'
 on: # rebuild any PRs and main branch changes
   pull_request:
   push:
@@ -9,20 +9,19 @@ jobs:
   build: # make sure build/ci work properly
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - run: corepack enable
-    - uses: actions/setup-node@v6
-      with:
-        node-version-file: "package.json"
-        cache: pnpm
-    - run: |
-        pnpm install
-        pnpm run all
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm run all
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: ./
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        json-path: '.dummy_results-0.json'
+      - uses: actions/checkout@v6
+      - uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          json-path: '.dummy_results-0.json'
