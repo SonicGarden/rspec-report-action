@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import type {RspecResult} from './parse'
-import replaceComment, {deleteComment} from '@aki77/actions-replace-comment'
+import type { RspecResult } from './parse.js'
+import replaceComment, { deleteComment } from '@aki77/actions-replace-comment'
 
 const MAX_TABLE_ROWS = 20
 const MAX_MESSAGE_LENGTH = 200
@@ -13,13 +13,13 @@ const truncate = (str: string, maxLength: number): string => {
 export async function examples2Table(
   examples: RspecResult['examples']
 ): Promise<string> {
-  const {markdownTable} = await import('markdown-table')
+  const { markdownTable } = await import('markdown-table')
 
   return markdownTable([
     ['Example', 'Description', 'Message'],
     ...examples
       .slice(0, MAX_TABLE_ROWS)
-      .map(({filePath, lineNumber, description, message}) => [
+      .map(({ filePath, lineNumber, description, message }) => [
         [filePath, lineNumber].join(':'),
         description,
         truncate(message, MAX_MESSAGE_LENGTH)
@@ -44,7 +44,7 @@ const commentGeneralOptions = (): CommentGeneralOptions => {
   }
 
   return {
-    token: core.getInput('token', {required: true}),
+    token: core.getInput('token', { required: true }),
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     issue_number: pullRequestId
@@ -52,7 +52,7 @@ const commentGeneralOptions = (): CommentGeneralOptions => {
 }
 
 export const reportComment = async (result: RspecResult): Promise<void> => {
-  const title = core.getInput('title', {required: true})
+  const title = core.getInput('title', { required: true })
 
   if (result.success) {
     await deleteComment({

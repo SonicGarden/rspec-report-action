@@ -1,12 +1,21 @@
-/* eslint-disable import/no-commonjs */
-module.exports = {
+/** @type {import('ts-jest').JestConfigWithTsJest} **/
+export default {
   clearMocks: true,
-  moduleFileExtensions: ['js', 'ts'],
+  extensionsToTreatAsEsm: ['.ts'],
+  moduleFileExtensions: ['ts', 'js'],
+  preset: 'ts-jest',
+  resolver: 'ts-jest-resolver',
+  testEnvironment: 'node',
   testMatch: ['**/*.test.ts'],
+  testPathIgnorePatterns: ['/dist/', '/node_modules/'],
   transform: {
-    '\\.jsx?$': 'babel-jest',
-    '^.+\\.ts$': 'ts-jest'
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.json',
+        useESM: true
+      }
+    ]
   },
-  transformIgnorePatterns: ['/node_modules/(?!markdown-table).+\\.js'],
   verbose: true
 }

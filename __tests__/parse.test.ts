@@ -1,6 +1,9 @@
-import * as path from 'path'
-import {parse} from '../src/parse'
-import {expect, test} from '@jest/globals'
+import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { expect, test } from '@jest/globals'
+import { parse } from '../src/parse.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 test('Parse rspec result json', async () => {
   const result = await parse([

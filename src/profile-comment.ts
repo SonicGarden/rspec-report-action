@@ -1,17 +1,17 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import type {RspecResult} from './parse'
-import {floor} from './util'
+import type { RspecResult } from './parse.js'
+import { floor } from './util.js'
 import replaceComment from '@aki77/actions-replace-comment'
 
 export async function examples2Table(
   examples: RspecResult['slowExamples']
 ): Promise<string> {
-  const {markdownTable} = await import('markdown-table')
+  const { markdownTable } = await import('markdown-table')
 
   return markdownTable([
     ['Example', 'Description', 'Time in seconds'],
-    ...examples.map(({filePath, lineNumber, description, runTime}) => [
+    ...examples.map(({ filePath, lineNumber, description, runTime }) => [
       [filePath, lineNumber].join(':'),
       description,
       String(floor(runTime, 5))
@@ -33,7 +33,7 @@ const commentGeneralOptions = (): CommentGeneralOptions => {
   }
 
   return {
-    token: core.getInput('token', {required: true}),
+    token: core.getInput('token', { required: true }),
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     issue_number: pullRequestId
@@ -43,18 +43,17 @@ const commentGeneralOptions = (): CommentGeneralOptions => {
 const slowestExamplesSummary = (result: RspecResult): string => {
   const totalTime = result.totalTime
   const slowTotalTime = result.slowExamples.reduce(
-    (total, {runTime}) => total + runTime,
+    (total, { runTime }) => total + runTime,
     0
   )
   const percentage = (slowTotalTime / totalTime) * 100
-  // eslint-disable-next-line i18n-text/no-en
   return `Top ${result.slowExamples.length} slowest examples (${floor(slowTotalTime, 2)} seconds, ${floor(percentage, 2)}% of total time)`
 }
 
 export const reportProfileComment = async (
   result: RspecResult
 ): Promise<void> => {
-  const title = core.getInput('profileTitle', {required: true})
+  const title = core.getInput('profileTitle', { required: true })
   const summary = slowestExamplesSummary(result)
 
   await replaceComment({

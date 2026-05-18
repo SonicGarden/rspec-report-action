@@ -1,5 +1,5 @@
-import path from 'path'
-import {readFile} from 'fs/promises'
+import path from 'node:path'
+import { readFile } from 'node:fs/promises'
 
 interface Exception {
   class: string
@@ -65,10 +65,9 @@ function generateSummary(
 }
 
 export async function parse(resultPaths: string[]): Promise<RspecResult> {
-  const promises = resultPaths.map(async resultPath => {
+  const promises = resultPaths.map(async (resultPath) => {
     return JSON.parse(
       await readFile(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         path.resolve(process.env.GITHUB_WORKSPACE!, resultPath),
         'utf-8'
       )
@@ -81,11 +80,10 @@ export async function parse(resultPaths: string[]): Promise<RspecResult> {
     [] as Example[]
   )
   const examples: FailureExample[] = allExamples
-    .filter(({status}) => status === 'failed')
-    .map(({file_path, line_number, full_description, exception}) => {
+    .filter(({ status }) => status === 'failed')
+    .map(({ file_path, line_number, full_description, exception }) => {
       return {
         description: full_description,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         message: exception!.message,
         filePath: file_path.replace(/^\.\//, ''),
         lineNumber: line_number
@@ -94,7 +92,7 @@ export async function parse(resultPaths: string[]): Promise<RspecResult> {
   const slowExamples: SlowExample[] = [...allExamples]
     .sort((a, b) => b.run_time - a.run_time)
     .slice(0, 10)
-    .map(({file_path, line_number, full_description, run_time}) => {
+    .map(({ file_path, line_number, full_description, run_time }) => {
       return {
         description: full_description,
         filePath: file_path.replace(/^\.\//, ''),
@@ -105,10 +103,10 @@ export async function parse(resultPaths: string[]): Promise<RspecResult> {
   const totalExamples = allExamples.length
   const failedExamples = examples.length
   const pendingExamples = allExamples.filter(
-    example => example.pending_message !== null
+    (example) => example.pending_message !== null
   ).length
   const totalTime = allExamples.reduce(
-    (total, {run_time}) => total + run_time,
+    (total, { run_time }) => total + run_time,
     0
   )
 
