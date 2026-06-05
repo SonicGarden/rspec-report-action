@@ -64115,6 +64115,20 @@ function requireOut () {
 var outExports = requireOut();
 var glob = /*@__PURE__*/getDefaultExportFromCjs(outExports);
 
+const MAX_BACKTRACE_LINES = 10;
+// Regex to exclude gem / ruby core paths (fallback for absolute-path backtraces).
+const NON_PROJECT_BACKTRACE = /[/\\](gems|ruby|\.rbenv|\.rvm|\.bundle|vendor[/\\]bundle)[/\\]/;
+// Extract only the project-local lines from a backtrace.
+// 1. Prefer project-root-relative paths (the CI default, starting with `./`).
+// 2. Otherwise, keep lines that are not gem / ruby core (fallback for absolute-path output).
+// 3. If still empty, return an empty array and the caller omits the backtrace section.
+function extractProjectBacktrace(backtrace) {
+    const relative = backtrace.filter((line) => line.startsWith('./'));
+    const lines = relative.length > 0
+        ? relative
+        : backtrace.filter((line) => !NON_PROJECT_BACKTRACE.test(line));
+    return lines.slice(0, MAX_BACKTRACE_LINES);
+}
 function pluralize(noun, count) {
     if (count === 1)
         return noun;
@@ -64140,6 +64154,7 @@ async function parse(resultPaths) {
         return {
             description: full_description,
             message: exception.message,
+            backtrace: extractProjectBacktrace(exception.backtrace ?? []),
             filePath: file_path.replace(/^\.\//, ''),
             lineNumber: line_number
         };
@@ -64168,42 +64183,65 @@ async function parse(resultPaths) {
     };
 }
 
-const FOOTER_LINK = 'Reported by [rspec-report-action](https://github.com/SonicGarden/rspec-report-action)';
-const formatMessage = (message) => {
-    const lines = message
-        .replace(/\\n/g, '\n')
-        .trim()
-        .replace(/ /g, '&nbsp;')
-        .split(/\n/);
-    const [summary, ...bodyLines] = lines;
-    return `<details>
-<summary>${summary}</summary>
-
-${bodyLines.join('<br>')}
-</details>
-`;
+// Maximum number of failures to list. Anything beyond is summarized as "... and N more failures".
+const MAX_LIST_ITEMS = 20;
+// Build the base URL used for linking to the failing source.
+// e.g. https://github.com/owner/repo/blob/<sha>
+const buildBaseUrl = () => {
+    const { serverUrl, sha } = githubExports.context;
+    const { owner, repo } = githubExports.context.repo;
+    return `${serverUrl}/${owner}/${repo}/blob/${sha}`;
 };
+const codeBlock = (content) => `\`\`\`\n${content}\n\`\`\``;
+// Label for a failure (path:line). Used both in list rows and details headings.
+const exampleLabel = ({ filePath, lineNumber }) => `${filePath}:${lineNumber}`;
+// Link URL to the failing source. Used in details headings.
+const exampleLink = (example, baseUrl) => `${baseUrl}/${example.filePath}#L${example.lineNumber}`;
+// A single line in the initial code block. Plain text with path:line and description, no link.
+// Being inside a code block, it carries no link and stays easy to copy & paste.
+// e.g. spec/models/foo_spec.rb:18 Foo is expected to be valid
+const formatListLine = (example) => `${exampleLabel(example)} ${example.description}`;
+// Build the section for a single failure shown inside the details block.
+// It consists of a heading (source link + description) plus a single code block joining message and backtrace.
+// The message is emitted verbatim, only trimmed of surrounding whitespace (the old truncate / newline-to-space / &nbsp; replacement is dropped).
+// The backtrace follows below the message, separated by a blank line, only when project lines exist.
+const formatDetailSection = (example, baseUrl) => {
+    const { message, backtrace, description } = example;
+    const link = exampleLink(example, baseUrl);
+    const heading = `### [${exampleLabel(example)}](${link}) ${description}`;
+    const trimmedMessage = message.trim();
+    const body = backtrace.length > 0
+        ? `${trimmedMessage}\n\n${backtrace.join('\n')}`
+        : trimmedMessage;
+    return `${heading}\n\n${codeBlock(body)}`;
+};
+// Build the full Markdown for the failure list.
+// (A) A single code block listing failures and descriptions (no links, easy to copy).
+// (B) A single <details> block gathering all failure details (linked headings + message & backtrace).
+// The limit applies equally to both the list and the details; overflow is shown as a count only.
+const formatFailureList = (examples, baseUrl, limit = MAX_LIST_ITEMS) => {
+    const shown = examples.slice(0, limit);
+    const remaining = examples.length - shown.length;
+    const listLines = shown.map(formatListLine);
+    if (remaining > 0) {
+        listLines.push(`... and ${remaining} more failures`);
+    }
+    const list = codeBlock(listLines.join('\n'));
+    const details = `<details><summary>Details</summary>\n\n${shown
+        .map((example) => formatDetailSection(example, baseUrl))
+        .join('\n\n')}\n\n</details>`;
+    return `${list}\n\n${details}`;
+};
+
+const FOOTER_LINK = 'Reported by [rspec-report-action](https://github.com/SonicGarden/rspec-report-action)';
 const reportSummary = async (result) => {
     const icon = result.success ? ':tada:' : ':cold_sweat:';
     const summary$1 = `${icon} ${result.summary}`;
-    const baseUrl = `${githubExports.context.serverUrl}/${githubExports.context.repo.owner}/${githubExports.context.repo.repo}/blob/${githubExports.context.sha}`;
-    const rows = result.examples.map(({ filePath, lineNumber, description, message }) => [
-        `\n\n[${filePath}:${lineNumber}](${baseUrl}/${filePath}#L${lineNumber})`,
-        description,
-        formatMessage(message)
-    ]);
     const hideFooterLink = getInput('hideFooterLink') === 'true';
     await summary
         .addHeading('RSpec Result')
         .addRaw(summary$1)
-        .addTable([
-        [
-            { data: 'Example :link:', header: true },
-            { data: 'Description :pencil2:', header: true },
-            { data: 'Message :x:', header: true }
-        ],
-        ...rows
-    ])
+        .addRaw(`\n\n${formatFailureList(result.examples, buildBaseUrl())}\n`)
         .addRaw(hideFooterLink ? '' : `\n${FOOTER_LINK}`)
         .write();
 };
@@ -66513,27 +66551,6 @@ function requireLib () {
 var libExports = requireLib();
 var replaceComment = /*@__PURE__*/getDefaultExportFromCjs(libExports);
 
-const MAX_TABLE_ROWS = 20;
-const MAX_MESSAGE_LENGTH = 200;
-const truncate = (str, maxLength) => {
-    return str.length > maxLength ? `${str.slice(0, maxLength)}...` : str;
-};
-async function examples2Table$1(examples) {
-    const { markdownTable } = await Promise.resolve().then(function () { return index; });
-    return markdownTable([
-        ['Example', 'Description', 'Message'],
-        ...examples
-            .slice(0, MAX_TABLE_ROWS)
-            .map(({ filePath, lineNumber, description, message }) => [
-            [filePath, lineNumber].join(':'),
-            description,
-            truncate(message, MAX_MESSAGE_LENGTH)
-                .replace(/\\n/g, ' ')
-                .trim()
-                .replace(/\s+/g, '&nbsp;')
-        ])
-    ]);
-}
 const commentGeneralOptions$1 = () => {
     const pullRequestId = githubExports.context.issue.number;
     if (!pullRequestId) {
@@ -66559,12 +66576,10 @@ const reportComment = async (result) => {
     await replaceComment({
         ...commentGeneralOptions$1(),
         body: `${title}
-<details>
-<summary>${result.summary}</summary>
 
-${await examples2Table$1(result.examples)}
+${result.summary}
 
-</details>
+${formatFailureList(result.examples, buildBaseUrl())}
 `
     });
 };

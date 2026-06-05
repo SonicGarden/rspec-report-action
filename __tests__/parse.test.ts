@@ -10,88 +10,107 @@ test('Parse rspec result json', async () => {
     path.resolve(__dirname, '../.dummy_results-0.json')
   ])
   expect(result).toEqual({
-    summary: '25 examples, 1 failure',
+    summary: '10 examples, 3 failures',
     examples: [
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 37,
+        filePath: 'spec/models/user_spec.rb',
+        lineNumber: 18,
         description:
-          'ActiveRecord::Validations::BlobValidator with size_range option 1.4MB is expected to eq true',
-        message: '\\nexpected: true\\n     got: false\\n\\n(compared using ==)'
+          'User validations is expected to validate that :email cannot be empty',
+        message: '\nexpected: true\n     got: false\n\n(compared using ==)',
+        backtrace: [
+          "./spec/models/user_spec.rb:18:in `block (3 levels) in <top (required)>'",
+          "./app/models/user.rb:24:in `valid?'"
+        ]
+      },
+      {
+        filePath: 'spec/services/payment_service_spec.rb',
+        lineNumber: 42,
+        description:
+          'PaymentService#charge raises an error when the gateway is unreachable',
+        message:
+          'Payment gateway returned an unexpected response.\n\nThe gateway responded with HTTP 502 (Bad Gateway) while attempting to\nauthorize the charge. This usually means the upstream processor is\ntemporarily unavailable. Retrying the request did not resolve the issue\nwithin the configured timeout of 30 seconds.\n\nRequest ID: req_0123456789abcdef',
+        backtrace: [
+          "./spec/services/payment_service_spec.rb:42:in `block (2 levels) in <top (required)>'",
+          "./app/services/payment_service.rb:58:in `charge'",
+          "./lib/gateways/stripe_gateway.rb:31:in `authorize'"
+        ]
+      },
+      {
+        filePath: 'spec/requests/orders_spec.rb',
+        lineNumber: 73,
+        description: 'GET /orders calculates the total amount',
+        message: "undefined method `total_amount' for nil:NilClass",
+        backtrace: [
+          "./spec/requests/orders_spec.rb:73:in `block (2 levels) in <top (required)>'",
+          "./app/controllers/orders_controller.rb:19:in `index'"
+        ]
       }
     ],
     success: false,
-    totalTime: 0.294507,
+    totalTime: 0.647017,
     slowExamples: [
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 11,
+        filePath: 'spec/services/payment_service_spec.rb',
+        lineNumber: 42,
         description:
-          'ActiveRecord::Validations::BlobValidator presence: true has_one_attached is expected to eq true',
-        runTime: 0.044519
+          'PaymentService#charge raises an error when the gateway is unreachable',
+        runTime: 0.156789
       },
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 37,
-        description:
-          'ActiveRecord::Validations::BlobValidator with size_range option 1.4MB is expected to eq true',
-        runTime: 0.038474
+        filePath: 'spec/requests/orders_spec.rb',
+        lineNumber: 73,
+        description: 'GET /orders calculates the total amount',
+        runTime: 0.123456
       },
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 10,
-        description:
-          'ActiveRecord::Validations::BlobValidator presence: true has_one_attached is expected to eq false',
-        runTime: 0.016242
+        filePath: 'spec/requests/orders_spec.rb',
+        lineNumber: 12,
+        description: 'GET /orders returns a list of orders',
+        runTime: 0.098765
       },
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 36,
+        filePath: 'spec/models/user_spec.rb',
+        lineNumber: 18,
         description:
-          'ActiveRecord::Validations::BlobValidator with size_range option 1.4MB is expected to eq false',
-        runTime: 0.015013
+          'User validations is expected to validate that :email cannot be empty',
+        runTime: 0.087654
       },
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 39,
-        description:
-          "ActiveRecord::Validations::BlobValidator with size_range option 1.4MB should translate the validation error according to it's locale",
-        runTime: 0.015001
+        filePath: 'spec/requests/orders_spec.rb',
+        lineNumber: 89,
+        description: 'GET /orders requires authentication',
+        runTime: 0.056789
       },
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 80,
-        description:
-          'ActiveRecord::Validations::BlobValidator with content_type option symbol is expected to eq true',
-        runTime: 0.011655
+        filePath: 'spec/services/payment_service_spec.rb',
+        lineNumber: 67,
+        description: 'PaymentService#charge records the transaction',
+        runTime: 0.045678
       },
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 54,
-        description:
-          'ActiveRecord::Validations::BlobValidator with content_type option regexp is expected to eq true',
-        runTime: 0.009849
+        filePath: 'spec/services/payment_service_spec.rb',
+        lineNumber: 21,
+        description: 'PaymentService#charge charges the customer',
+        runTime: 0.034567
       },
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 68,
-        description:
-          'ActiveRecord::Validations::BlobValidator with content_type option array is expected to eq false',
-        runTime: 0.00981
+        filePath: 'spec/models/user_spec.rb',
+        lineNumber: 31,
+        description: 'User callbacks downcases the email before saving',
+        runTime: 0.021098
       },
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 71,
-        description:
-          'ActiveRecord::Validations::BlobValidator with content_type option array is expected to eq false',
-        runTime: 0.009572
+        filePath: 'spec/models/user_spec.rb',
+        lineNumber: 8,
+        description: 'User with valid attributes is expected to be valid',
+        runTime: 0.012345
       },
       {
-        filePath: 'spec/activestorage/validator/blob_spec.rb',
-        lineNumber: 55,
-        description:
-          'ActiveRecord::Validations::BlobValidator with content_type option regexp is expected to eq false',
-        runTime: 0.009186
+        filePath: 'spec/models/order_spec.rb',
+        lineNumber: 6,
+        description: 'Order associations belongs to a user',
+        runTime: 0.009876
       }
     ]
   })

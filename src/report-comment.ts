@@ -1,34 +1,8 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import type { RspecResult } from './parse.js'
+import { buildBaseUrl, formatFailureList } from './format.js'
 import replaceComment, { deleteComment } from '@aki77/actions-replace-comment'
-
-const MAX_TABLE_ROWS = 20
-const MAX_MESSAGE_LENGTH = 200
-
-const truncate = (str: string, maxLength: number): string => {
-  return str.length > maxLength ? `${str.slice(0, maxLength)}...` : str
-}
-
-export async function examples2Table(
-  examples: RspecResult['examples']
-): Promise<string> {
-  const { markdownTable } = await import('markdown-table')
-
-  return markdownTable([
-    ['Example', 'Description', 'Message'],
-    ...examples
-      .slice(0, MAX_TABLE_ROWS)
-      .map(({ filePath, lineNumber, description, message }) => [
-        [filePath, lineNumber].join(':'),
-        description,
-        truncate(message, MAX_MESSAGE_LENGTH)
-          .replace(/\\n/g, ' ')
-          .trim()
-          .replace(/\s+/g, '&nbsp;')
-      ])
-  ])
-}
 
 type CommentGeneralOptions = {
   token: string
@@ -66,12 +40,10 @@ export const reportComment = async (result: RspecResult): Promise<void> => {
   await replaceComment({
     ...commentGeneralOptions(),
     body: `${title}
-<details>
-<summary>${result.summary}</summary>
 
-${await examples2Table(result.examples)}
+${result.summary}
 
-</details>
+${formatFailureList(result.examples, buildBaseUrl())}
 `
   })
 }

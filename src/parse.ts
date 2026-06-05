@@ -29,6 +29,7 @@ type FailureExample = {
   lineNumber: number
   description: string
   message: string
+  backtrace: string[]
 }
 
 type SlowExample = {
@@ -44,6 +45,25 @@ export type RspecResult = {
   summary: string
   success: boolean
   totalTime: number
+}
+
+const MAX_BACKTRACE_LINES = 10
+
+// Regex to exclude gem / ruby core paths (fallback for absolute-path backtraces).
+const NON_PROJECT_BACKTRACE =
+  /[/\\](gems|ruby|\.rbenv|\.rvm|\.bundle|vendor[/\\]bundle)[/\\]/
+
+// Extract only the project-local lines from a backtrace.
+// 1. Prefer project-root-relative paths (the CI default, starting with `./`).
+// 2. Otherwise, keep lines that are not gem / ruby core (fallback for absolute-path output).
+// 3. If still empty, return an empty array and the caller omits the backtrace section.
+function extractProjectBacktrace(backtrace: string[]): string[] {
+  const relative = backtrace.filter((line) => line.startsWith('./'))
+  const lines =
+    relative.length > 0
+      ? relative
+      : backtrace.filter((line) => !NON_PROJECT_BACKTRACE.test(line))
+  return lines.slice(0, MAX_BACKTRACE_LINES)
 }
 
 function pluralize(noun: string, count: number): string {
@@ -85,6 +105,7 @@ export async function parse(resultPaths: string[]): Promise<RspecResult> {
       return {
         description: full_description,
         message: exception!.message,
+        backtrace: extractProjectBacktrace(exception!.backtrace ?? []),
         filePath: file_path.replace(/^\.\//, ''),
         lineNumber: line_number
       }
