@@ -43,26 +43,35 @@ describe('formatFailureList', () => {
     expect(result).not.toContain('&nbsp;')
   })
 
-  test('renders a linked list line and a single details with heading, message and backtrace', () => {
+  test('renders a plain list line and a single details with linked heading and merged message/backtrace', () => {
     const result = formatFailureList([example()], baseUrl)
+    // 初期表示はリンクなしのプレーン行（path:line description）
     expect(result).toContain(
-      `- [spec/models/foo_spec.rb:18](${baseUrl}/spec/models/foo_spec.rb#L18) Foo is expected to be valid`
+      'spec/models/foo_spec.rb:18 Foo is expected to be valid'
     )
     // details はちょうど 1 個
     expect(result.match(/<details>/g)?.length).toBe(1)
     expect(result).toContain('<details><summary>Details</summary>')
-    expect(result).toContain('### spec/models/foo_spec.rb:18')
-    expect(result).toContain('expected true\n     got: false')
+    // 見出しはリンク + description
     expect(result).toContain(
-      "./spec/models/foo_spec.rb:18:in 'block (4 levels) in <main>'"
+      `### [spec/models/foo_spec.rb:18](${baseUrl}/spec/models/foo_spec.rb#L18) Foo is expected to be valid`
+    )
+    // message と backtrace は同一コードブロック内に空行区切りで連結
+    expect(result).toContain(
+      "expected true\n     got: false\n\n./spec/models/foo_spec.rb:18:in 'block (4 levels) in <main>'"
     )
   })
 
-  test('omits the backtrace block when backtrace is empty', () => {
-    const result = formatFailureList([example({ backtrace: [] })], baseUrl)
-    expect(result).toContain('expected true\n     got: false')
-    // message のコードブロックは1つだけ（backtrace ブロックなし）
-    expect(result.match(/```/g)?.length).toBe(2)
+  test('keeps message and backtrace in a single code block (no extra block when backtrace empty)', () => {
+    const withBacktrace = formatFailureList([example()], baseUrl)
+    const withoutBacktrace = formatFailureList(
+      [example({ backtrace: [] })],
+      baseUrl
+    )
+    expect(withoutBacktrace).toContain('expected true\n     got: false')
+    // backtrace の有無に関わらずブロック数は同じ（リスト用1 + details用1 = ``` が計4個）
+    expect(withBacktrace.match(/```/g)?.length).toBe(4)
+    expect(withoutBacktrace.match(/```/g)?.length).toBe(4)
   })
 
   test('caps the list at the limit and reports the remaining count', () => {
@@ -70,13 +79,11 @@ describe('formatFailureList', () => {
       example({ lineNumber: i + 1 })
     )
     const result = formatFailureList(examples, baseUrl, 20)
-    expect(result).toContain('- ... and 3 more failures')
+    expect(result).toContain('... and 3 more failures')
     // details はまとめて 1 個
     expect(result.match(/<details>/g)?.length).toBe(1)
-    // リンク行は 20 件
-    expect(result.match(/- \[/g)?.length).toBe(20)
-    // details 内の見出しも 20 個
-    expect(result.match(/### /g)?.length).toBe(20)
+    // details 内のリンク付き見出しは 20 個
+    expect(result.match(/### \[/g)?.length).toBe(20)
   })
 
   test('does not add the more-failures line within the limit', () => {
