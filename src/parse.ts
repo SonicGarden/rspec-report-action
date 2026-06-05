@@ -29,6 +29,7 @@ type FailureExample = {
   lineNumber: number
   description: string
   message: string
+  backtrace: string[]
 }
 
 type SlowExample = {
@@ -44,6 +45,25 @@ export type RspecResult = {
   summary: string
   success: boolean
   totalTime: number
+}
+
+const MAX_BACKTRACE_LINES = 10
+
+// gem や ruby 本体のパスを除外するための正規表現（絶対パス backtrace 用フォールバック）
+const NON_PROJECT_BACKTRACE =
+  /[/\\](gems|ruby|\.rbenv|\.rvm|\.bundle|vendor[/\\]bundle)[/\\]/
+
+// backtrace からプロジェクト内の行のみを抽出する。
+// 1. CI デフォルトのプロジェクトルート相対パス（`./` 始まり）を優先
+// 2. 見つからなければ gem / ruby 本体を除外した行（絶対パス出力時のフォールバック）
+// 3. それでも空なら空配列を返し、呼び出し側で backtrace セクションを省略する
+function extractProjectBacktrace(backtrace: string[]): string[] {
+  const relative = backtrace.filter((line) => line.startsWith('./'))
+  const lines =
+    relative.length > 0
+      ? relative
+      : backtrace.filter((line) => !NON_PROJECT_BACKTRACE.test(line))
+  return lines.slice(0, MAX_BACKTRACE_LINES)
 }
 
 function pluralize(noun: string, count: number): string {
@@ -85,6 +105,7 @@ export async function parse(resultPaths: string[]): Promise<RspecResult> {
       return {
         description: full_description,
         message: exception!.message,
+        backtrace: extractProjectBacktrace(exception!.backtrace ?? []),
         filePath: file_path.replace(/^\.\//, ''),
         lineNumber: line_number
       }

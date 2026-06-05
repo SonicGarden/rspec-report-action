@@ -36,7 +36,10 @@ test('Parse multiple rspec json results', async () => {
         lineNumber: 37,
         description:
           'ActiveRecord::Validations::BlobValidator with size_range option 1.4MB is expected to eq true',
-        message: '\\nexpected: true\\n     got: false\\n\\n(compared using ==)'
+        message: '\nexpected: true\n     got: false\n\n(compared using ==)',
+        backtrace: [
+          "/Users/aki/src/github.com/aki77/activestorage-validator/spec/activestorage/validator/blob_spec.rb:37:in `block (4 levels) in <top (required)>'"
+        ]
       }
     ],
     success: false,

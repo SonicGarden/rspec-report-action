@@ -64115,6 +64115,20 @@ function requireOut () {
 var outExports = requireOut();
 var glob = /*@__PURE__*/getDefaultExportFromCjs(outExports);
 
+const MAX_BACKTRACE_LINES = 10;
+// gem や ruby 本体のパスを除外するための正規表現（絶対パス backtrace 用フォールバック）
+const NON_PROJECT_BACKTRACE = /[/\\](gems|ruby|\.rbenv|\.rvm|\.bundle|vendor[/\\]bundle)[/\\]/;
+// backtrace からプロジェクト内の行のみを抽出する。
+// 1. CI デフォルトのプロジェクトルート相対パス（`./` 始まり）を優先
+// 2. 見つからなければ gem / ruby 本体を除外した行（絶対パス出力時のフォールバック）
+// 3. それでも空なら空配列を返し、呼び出し側で backtrace セクションを省略する
+function extractProjectBacktrace(backtrace) {
+    const relative = backtrace.filter((line) => line.startsWith('./'));
+    const lines = relative.length > 0
+        ? relative
+        : backtrace.filter((line) => !NON_PROJECT_BACKTRACE.test(line));
+    return lines.slice(0, MAX_BACKTRACE_LINES);
+}
 function pluralize(noun, count) {
     if (count === 1)
         return noun;
@@ -64140,6 +64154,7 @@ async function parse(resultPaths) {
         return {
             description: full_description,
             message: exception.message,
+            backtrace: extractProjectBacktrace(exception.backtrace ?? []),
             filePath: file_path.replace(/^\.\//, ''),
             lineNumber: line_number
         };
@@ -64168,42 +64183,53 @@ async function parse(resultPaths) {
     };
 }
 
-const FOOTER_LINK = 'Reported by [rspec-report-action](https://github.com/SonicGarden/rspec-report-action)';
-const formatMessage = (message) => {
-    const lines = message
-        .replace(/\\n/g, '\n')
-        .trim()
-        .replace(/ /g, '&nbsp;')
-        .split(/\n/);
-    const [summary, ...bodyLines] = lines;
-    return `<details>
-<summary>${summary}</summary>
-
-${bodyLines.join('<br>')}
-</details>
-`;
+// 失敗一覧に表示する最大件数。超過分は "... and N more failures" にまとめる。
+const MAX_LIST_ITEMS = 20;
+// 失敗箇所のソースへのリンクに使うベース URL を組み立てる。
+// 例: https://github.com/owner/repo/blob/<sha>
+const buildBaseUrl = () => {
+    const { serverUrl, sha } = githubExports.context;
+    const { owner, repo } = githubExports.context.repo;
+    return `${serverUrl}/${owner}/${repo}/blob/${sha}`;
 };
+const codeBlock = (content) => `\`\`\`\n${content}\n\`\`\``;
+// 失敗 1 件分の Markdown（リンク付きリスト行 + details）を生成する。
+// details には message を常に、backtrace はプロジェクト行がある場合のみコードブロックで格納する。
+// message は前後の空白を除くだけで無加工のまま出す（旧実装の truncate / 改行→空白 / &nbsp; 置換は撤廃）。
+const formatFailureItem = ({ filePath, lineNumber, description, message, backtrace }, baseUrl) => {
+    const link = `${baseUrl}/${filePath}#L${lineNumber}`;
+    const detailBlocks = [codeBlock(message.trim())];
+    if (backtrace.length > 0) {
+        detailBlocks.push(codeBlock(backtrace.join('\n')));
+    }
+    return `- [${filePath}:${lineNumber}](${link}) ${description}
+  <details><summary>Details</summary>
+
+${detailBlocks.join('\n\n')}
+
+  </details>`;
+};
+// 失敗一覧全体の Markdown を生成する。先頭 limit 件のみ詳細を出し、超過分は件数のみ示す。
+const formatFailureList = (examples, baseUrl, limit = MAX_LIST_ITEMS) => {
+    const items = examples
+        .slice(0, limit)
+        .map((example) => formatFailureItem(example, baseUrl));
+    const remaining = examples.length - limit;
+    if (remaining > 0) {
+        items.push(`- ... and ${remaining} more failures`);
+    }
+    return items.join('\n');
+};
+
+const FOOTER_LINK = 'Reported by [rspec-report-action](https://github.com/SonicGarden/rspec-report-action)';
 const reportSummary = async (result) => {
     const icon = result.success ? ':tada:' : ':cold_sweat:';
     const summary$1 = `${icon} ${result.summary}`;
-    const baseUrl = `${githubExports.context.serverUrl}/${githubExports.context.repo.owner}/${githubExports.context.repo.repo}/blob/${githubExports.context.sha}`;
-    const rows = result.examples.map(({ filePath, lineNumber, description, message }) => [
-        `\n\n[${filePath}:${lineNumber}](${baseUrl}/${filePath}#L${lineNumber})`,
-        description,
-        formatMessage(message)
-    ]);
     const hideFooterLink = getInput('hideFooterLink') === 'true';
     await summary
         .addHeading('RSpec Result')
         .addRaw(summary$1)
-        .addTable([
-        [
-            { data: 'Example :link:', header: true },
-            { data: 'Description :pencil2:', header: true },
-            { data: 'Message :x:', header: true }
-        ],
-        ...rows
-    ])
+        .addRaw(`\n\n${formatFailureList(result.examples, buildBaseUrl())}\n`)
         .addRaw(hideFooterLink ? '' : `\n${FOOTER_LINK}`)
         .write();
 };
@@ -66513,27 +66539,6 @@ function requireLib () {
 var libExports = requireLib();
 var replaceComment = /*@__PURE__*/getDefaultExportFromCjs(libExports);
 
-const MAX_TABLE_ROWS = 20;
-const MAX_MESSAGE_LENGTH = 200;
-const truncate = (str, maxLength) => {
-    return str.length > maxLength ? `${str.slice(0, maxLength)}...` : str;
-};
-async function examples2Table$1(examples) {
-    const { markdownTable } = await Promise.resolve().then(function () { return index; });
-    return markdownTable([
-        ['Example', 'Description', 'Message'],
-        ...examples
-            .slice(0, MAX_TABLE_ROWS)
-            .map(({ filePath, lineNumber, description, message }) => [
-            [filePath, lineNumber].join(':'),
-            description,
-            truncate(message, MAX_MESSAGE_LENGTH)
-                .replace(/\\n/g, ' ')
-                .trim()
-                .replace(/\s+/g, '&nbsp;')
-        ])
-    ]);
-}
 const commentGeneralOptions$1 = () => {
     const pullRequestId = githubExports.context.issue.number;
     if (!pullRequestId) {
@@ -66559,12 +66564,10 @@ const reportComment = async (result) => {
     await replaceComment({
         ...commentGeneralOptions$1(),
         body: `${title}
-<details>
-<summary>${result.summary}</summary>
 
-${await examples2Table$1(result.examples)}
+${result.summary}
 
-</details>
+${formatFailureList(result.examples, buildBaseUrl())}
 `
     });
 };

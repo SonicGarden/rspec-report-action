@@ -3,3 +3,4 @@ node_modules/
 coverage/
 pnpm-lock.yaml
 .dummy_results-*.json
+.claude/
