@@ -16,41 +16,52 @@ export const buildBaseUrl = (): string => {
 
 const codeBlock = (content: string): string => `\`\`\`\n${content}\n\`\`\``
 
-// 失敗 1 件分の Markdown（リンク付きリスト行 + details）を生成する。
-// details には message を常に、backtrace はプロジェクト行がある場合のみコードブロックで格納する。
-// message は前後の空白を除くだけで無加工のまま出す（旧実装の truncate / 改行→空白 / &nbsp; 置換は撤廃）。
-export const formatFailureItem = (
-  { filePath, lineNumber, description, message, backtrace }: FailureExample,
-  baseUrl: string
-): string => {
+// 失敗箇所のラベル（path:line）。リスト行・details 見出しの双方で使う。
+const exampleLabel = ({ filePath, lineNumber }: FailureExample): string =>
+  `${filePath}:${lineNumber}`
+
+// 失敗 1 件分のリンク付きリスト行を生成する。
+// 例: - [spec/models/foo_spec.rb:18](link) Foo is expected to be valid
+const formatListLine = (example: FailureExample, baseUrl: string): string => {
+  const { filePath, lineNumber, description } = example
   const link = `${baseUrl}/${filePath}#L${lineNumber}`
-  const detailBlocks = [codeBlock(message.trim())]
-  if (backtrace.length > 0) {
-    detailBlocks.push(codeBlock(backtrace.join('\n')))
-  }
-
-  return `- [${filePath}:${lineNumber}](${link}) ${description}
-  <details><summary>Details</summary>
-
-${detailBlocks.join('\n\n')}
-
-  </details>`
+  return `- [${exampleLabel(example)}](${link}) ${description}`
 }
 
-// 失敗一覧全体の Markdown を生成する。先頭 limit 件のみ詳細を出し、超過分は件数のみ示す。
+// details 内に出す失敗 1 件分のセクションを生成する。
+// 見出し + message（常時）+ backtrace（プロジェクト行がある場合のみ）をコードブロックで並べる。
+// message は前後の空白を除くだけで無加工のまま出す（旧実装の truncate / 改行→空白 / &nbsp; 置換は撤廃）。
+// description はリストに既出のため見出しには含めない。
+const formatDetailSection = (example: FailureExample): string => {
+  const { message, backtrace } = example
+  const blocks = [`### ${exampleLabel(example)}`, codeBlock(message.trim())]
+  if (backtrace.length > 0) {
+    blocks.push(codeBlock(backtrace.join('\n')))
+  }
+  return blocks.join('\n\n')
+}
+
+// 失敗一覧全体の Markdown を生成する。
+// (A) トップレベルのリンクリスト（プレーンに並びコピーしやすい）
+// (B) 全失敗の詳細をまとめた単一の <details>
+// 上限 limit はリスト・details の双方に同じく適用し、超過分は件数のみ示す。
 export const formatFailureList = (
   examples: FailureExample[],
   baseUrl: string,
   limit: number = MAX_LIST_ITEMS
 ): string => {
-  const items = examples
-    .slice(0, limit)
-    .map((example) => formatFailureItem(example, baseUrl))
+  const shown = examples.slice(0, limit)
+  const remaining = examples.length - shown.length
 
-  const remaining = examples.length - limit
+  const listLines = shown.map((example) => formatListLine(example, baseUrl))
   if (remaining > 0) {
-    items.push(`- ... and ${remaining} more failures`)
+    listLines.push(`- ... and ${remaining} more failures`)
   }
+  const list = listLines.join('\n')
 
-  return items.join('\n')
+  const details = `<details><summary>Details</summary>\n\n${shown
+    .map(formatDetailSection)
+    .join('\n\n')}\n\n</details>`
+
+  return `${list}\n\n${details}`
 }

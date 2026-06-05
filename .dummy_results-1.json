@@ -15,7 +15,7 @@
       "id":"./spec/activestorage/validator/blob_spec.rb[1:1:1:2]",
       "description":"is expected to eq true",
       "full_description":"ActiveRecord::Validations::BlobValidator presence: true has_one_attached is expected to eq true",
-      "status":"passed",
+      "status":"pending",
       "file_path":"./spec/activestorage/validator/blob_spec.rb",
       "line_number":11,
       "run_time":0.044519,

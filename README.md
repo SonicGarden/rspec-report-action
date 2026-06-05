@@ -9,11 +9,11 @@ enabled).
 
 The report lists every failed example up front as a linked list
 (`- [spec/foo_spec.rb:37](link) description`), so you can grasp the failures at
-a glance and copy them easily. Each example has a `Details` block with the
-original failure message (kept as-is) and, when available, the project-local
-backtrace lines (gem / Ruby internals are excluded; omitted when none are
-found). Up to 20 examples are listed; any remainder is summarized as
-`... and N more failures`.
+a glance and copy them easily. All failures are collected into a single
+`Details` block, each with a heading, the original failure message (kept as-is)
+and, when available, the project-local backtrace lines (gem / Ruby internals are
+excluded; omitted when none are found). Up to 20 examples are listed; any
+remainder is summarized as `... and N more failures`.
 
 ![Demo](https://i.gyazo.com/f1367e662dbdca161e3fa8e503fb8fb3.png)
 
