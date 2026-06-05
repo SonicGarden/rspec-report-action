@@ -1,13 +1,13 @@
 import * as github from '@actions/github'
 import type { RspecResult } from './parse.js'
 
-// 失敗一覧に表示する最大件数。超過分は "... and N more failures" にまとめる。
+// Maximum number of failures to list. Anything beyond is summarized as "... and N more failures".
 const MAX_LIST_ITEMS = 20
 
 type FailureExample = RspecResult['examples'][number]
 
-// 失敗箇所のソースへのリンクに使うベース URL を組み立てる。
-// 例: https://github.com/owner/repo/blob/<sha>
+// Build the base URL used for linking to the failing source.
+// e.g. https://github.com/owner/repo/blob/<sha>
 export const buildBaseUrl = (): string => {
   const { serverUrl, sha } = github.context
   const { owner, repo } = github.context.repo
@@ -16,24 +16,24 @@ export const buildBaseUrl = (): string => {
 
 const codeBlock = (content: string): string => `\`\`\`\n${content}\n\`\`\``
 
-// 失敗箇所のラベル（path:line）。リスト行・details 見出しの双方で使う。
+// Label for a failure (path:line). Used both in list rows and details headings.
 const exampleLabel = ({ filePath, lineNumber }: FailureExample): string =>
   `${filePath}:${lineNumber}`
 
-// 失敗箇所のソースへのリンク URL。details 見出しで使う。
+// Link URL to the failing source. Used in details headings.
 const exampleLink = (example: FailureExample, baseUrl: string): string =>
   `${baseUrl}/${example.filePath}#L${example.lineNumber}`
 
-// 初期表示コードブロックの 1 行。リンクなしのプレーンテキストで path:line と description を並べる。
-// コードブロック内なのでリンクは付かず、そのままコピー・貼り付けしやすい。
-// 例: spec/models/foo_spec.rb:18 Foo is expected to be valid
+// A single line in the initial code block. Plain text with path:line and description, no link.
+// Being inside a code block, it carries no link and stays easy to copy & paste.
+// e.g. spec/models/foo_spec.rb:18 Foo is expected to be valid
 const formatListLine = (example: FailureExample): string =>
   `${exampleLabel(example)} ${example.description}`
 
-// details 内に出す失敗 1 件分のセクションを生成する。
-// 見出し（ソースへのリンク + description）+ message と backtrace を結合した単一コードブロックで構成する。
-// message は前後の空白を除くだけで無加工のまま出す（旧実装の truncate / 改行→空白 / &nbsp; 置換は撤廃）。
-// backtrace はプロジェクト行がある場合のみ message の下に空行区切りで続ける。
+// Build the section for a single failure shown inside the details block.
+// It consists of a heading (source link + description) plus a single code block joining message and backtrace.
+// The message is emitted verbatim, only trimmed of surrounding whitespace (the old truncate / newline-to-space / &nbsp; replacement is dropped).
+// The backtrace follows below the message, separated by a blank line, only when project lines exist.
 const formatDetailSection = (
   example: FailureExample,
   baseUrl: string
@@ -49,10 +49,10 @@ const formatDetailSection = (
   return `${heading}\n\n${codeBlock(body)}`
 }
 
-// 失敗一覧全体の Markdown を生成する。
-// (A) 失敗箇所と description を並べた単一コードブロック（リンクなしでコピーしやすい）
-// (B) 全失敗の詳細（リンク付き見出し + message&backtrace）をまとめた単一の <details>
-// 上限 limit はリスト・details の双方に同じく適用し、超過分は件数のみ示す。
+// Build the full Markdown for the failure list.
+// (A) A single code block listing failures and descriptions (no links, easy to copy).
+// (B) A single <details> block gathering all failure details (linked headings + message & backtrace).
+// The limit applies equally to both the list and the details; overflow is shown as a count only.
 export const formatFailureList = (
   examples: FailureExample[],
   baseUrl: string,

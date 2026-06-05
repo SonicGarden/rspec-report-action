@@ -18,7 +18,7 @@ pnpm run package  # rollup bundle into dist/ — REQUIRED before committing src/
 - **`dist/` is committed and must be rebuilt.** `action.yml` runs `dist/index.js`. After any `src/` change, run `pnpm run package` and commit `dist/`, or the action ships stale code.
 - **ESM imports use `.js` specifiers** even though sources are `.ts` (e.g. `import { parse } from './parse.js'`). `ts-jest-resolver` maps these in tests.
 - **Tests resolve fixtures via `GITHUB_WORKSPACE`.** `parse.ts` reads paths relative to `process.env.GITHUB_WORKSPACE`; fixtures are `.dummy_results-*.json`.
-- **Code comments are written in Japanese** — match this convention.
+- **Code comments are written in English** — match this convention.
 - Node 24 / pnpm 10, pinned in `.node-version` and `mise.toml`.
 
 ## Architecture

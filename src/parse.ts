@@ -49,14 +49,14 @@ export type RspecResult = {
 
 const MAX_BACKTRACE_LINES = 10
 
-// gem や ruby 本体のパスを除外するための正規表現（絶対パス backtrace 用フォールバック）
+// Regex to exclude gem / ruby core paths (fallback for absolute-path backtraces).
 const NON_PROJECT_BACKTRACE =
   /[/\\](gems|ruby|\.rbenv|\.rvm|\.bundle|vendor[/\\]bundle)[/\\]/
 
-// backtrace からプロジェクト内の行のみを抽出する。
-// 1. CI デフォルトのプロジェクトルート相対パス（`./` 始まり）を優先
-// 2. 見つからなければ gem / ruby 本体を除外した行（絶対パス出力時のフォールバック）
-// 3. それでも空なら空配列を返し、呼び出し側で backtrace セクションを省略する
+// Extract only the project-local lines from a backtrace.
+// 1. Prefer project-root-relative paths (the CI default, starting with `./`).
+// 2. Otherwise, keep lines that are not gem / ruby core (fallback for absolute-path output).
+// 3. If still empty, return an empty array and the caller omits the backtrace section.
 function extractProjectBacktrace(backtrace: string[]): string[] {
   const relative = backtrace.filter((line) => line.startsWith('./'))
   const lines =
