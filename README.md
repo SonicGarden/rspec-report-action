@@ -45,7 +45,7 @@ jobs:
         run: bundle exec rspec -f j -o tmp/rspec_results.json -f p
 
       - name: RSpec Report
-        uses: SonicGarden/rspec-report-action@v7
+        uses: SonicGarden/rspec-report-action@v8
         with:
           json-path: tmp/rspec_results.json
         if: always()
@@ -106,7 +106,7 @@ jobs:
           path: /tmp/json-reports
           merge-multiple: true
       - name: RSpec Report
-        uses: SonicGarden/rspec-report-action@v7
+        uses: SonicGarden/rspec-report-action@v8
         with:
           json-path: /tmp/json-reports/rspec_results-*.json
 ```
