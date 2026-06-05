@@ -15,7 +15,7 @@ and, when available, the project-local backtrace lines (gem / Ruby internals are
 excluded; omitted when none are found). Up to 20 examples are listed; any
 remainder is summarized as `... and N more failures`.
 
-![Demo](https://i.gyazo.com/f1367e662dbdca161e3fa8e503fb8fb3.png)
+![Demo](https://i.gyazo.com/719266d3b7fda14b6291a4b1617fd4d8.png)
 
 ### Inputs
 
