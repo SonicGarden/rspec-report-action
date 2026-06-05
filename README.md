@@ -7,10 +7,10 @@ A GitHub Action that report RSpec failure.
 Reported in Job Summary (and as a pull request comment when `comment` is
 enabled).
 
-The report lists every failed example up front as a linked list
-(`- [spec/foo_spec.rb:37](link) description`), so you can grasp the failures at
-a glance and copy them easily. All failures are collected into a single
-`Details` block, each with a heading, the original failure message (kept as-is)
+The report lists every failed example up front in a single code block
+(`spec/foo_spec.rb:37 description`), so you can grasp the failures at a glance
+and copy them easily. All failures are then collected into a single `Details`
+block, each with a linked heading, the original failure message (kept as-is)
 and, when available, the project-local backtrace lines (gem / Ruby internals are
 excluded; omitted when none are found). Up to 20 examples are listed; any
 remainder is summarized as `... and N more failures`.
