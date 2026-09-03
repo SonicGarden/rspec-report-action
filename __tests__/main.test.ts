@@ -9,6 +9,12 @@ const info = jest.fn()
 const warning = jest.fn()
 const setFailed = jest.fn()
 
+jest.unstable_mockModule('@actions/github', () => ({
+  context: {
+    issue: { number: 1 }
+  }
+}))
+
 jest.unstable_mockModule('@actions/core', () => ({
   getInput,
   info,
@@ -21,6 +27,16 @@ jest.unstable_mockModule('@actions/core', () => ({
 const reportSummary = jest.fn()
 jest.unstable_mockModule('../src/report-summary.js', () => ({
   reportSummary
+}))
+
+const reportComment = jest.fn()
+jest.unstable_mockModule('../src/report-comment.js', () => ({
+  reportComment
+}))
+
+const reportProfileComment = jest.fn()
+jest.unstable_mockModule('../src/profile-comment.js', () => ({
+  reportProfileComment
 }))
 
 const { run } = await import('../src/main.js')
@@ -136,4 +152,37 @@ test('Parse multiple rspec json results', async () => {
       }
     ]
   })
+})
+
+test('does not report slow examples when profile is disabled', async () => {
+  jest.clearAllMocks()
+  getInput.mockImplementation((name) => {
+    if (name === 'json-path') {
+      return path.resolve(__dirname, '../.dummy_results-*.json')
+    }
+    if (name === 'comment') return 'true'
+    if (name === 'profile') return 'false'
+    return ''
+  })
+
+  await run()
+
+  expect(reportComment).toHaveBeenCalledTimes(1)
+  expect(reportProfileComment).not.toHaveBeenCalled()
+})
+
+test('reports slow examples when profile is enabled', async () => {
+  jest.clearAllMocks()
+  getInput.mockImplementation((name) => {
+    if (name === 'json-path') {
+      return path.resolve(__dirname, '../.dummy_results-*.json')
+    }
+    if (name === 'comment' || name === 'profile') return 'true'
+    return ''
+  })
+
+  await run()
+
+  expect(reportComment).toHaveBeenCalledTimes(1)
+  expect(reportProfileComment).toHaveBeenCalledTimes(1)
 })

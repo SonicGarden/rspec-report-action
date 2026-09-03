@@ -28,6 +28,10 @@ inputs:
     description: 'Title for profile'
     default: '# Slowest examples'
     required: false
+  profile:
+    description: 'Set this to false to disable the slowest examples comment'
+    default: 'true'
+    required: false
 runs:
   using: 'node24'
   main: 'dist/index.js'
