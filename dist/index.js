@@ -66655,7 +66655,9 @@ async function run() {
         }
         if (getInput('comment') === 'true' && githubExports.context.issue.number) {
             await reportComment(result);
-            await reportProfileComment(result);
+            if (getInput('profile') === 'true') {
+                await reportProfileComment(result);
+            }
         }
     }
     catch (error) {

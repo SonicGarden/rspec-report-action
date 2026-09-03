@@ -28,6 +28,8 @@ See [action.yml](action.yml)
 | `title`          | Summary title                                              | `# :cold_sweat: RSpec failure` | no       |
 | `hideFooterLink` | Hide footer link                                           | `false`                        | no       |
 | `comment`        | Set this if want to comment report to pull request         | `true`                         | no       |
+| `profileTitle`   | Title for the slowest examples comment                     | `# Slowest examples`           | no       |
+| `profile`        | Set to `false` to disable the slowest examples comment     | `true`                         | no       |
 
 ## Example
 
@@ -48,6 +50,7 @@ jobs:
         uses: SonicGarden/rspec-report-action@v8
         with:
           json-path: tmp/rspec_results.json
+          profile: false
         if: always()
 ```
 

@@ -31,7 +31,9 @@ export async function run(): Promise<void> {
 
     if (core.getInput('comment') === 'true' && github.context.issue.number) {
       await reportComment(result)
-      await reportProfileComment(result)
+      if (core.getInput('profile') === 'true') {
+        await reportProfileComment(result)
+      }
     }
   } catch (error) {
     if (error instanceof Error) {
