@@ -33,7 +33,7 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^3.0.0",
-    "@actions/github": "^6.0.0",
+    "@actions/github": "^9.1.1",
     "@aki77/actions-replace-comment": "0.6.1",
     "fast-glob": "^3.3.2",
     "markdown-table": "^3.0.3"
