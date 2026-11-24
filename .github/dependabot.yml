@@ -1,7 +1,33 @@
 version: 2
+
 updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      # Check for updates to GitHub Actions every weekday
-      interval: 'weekly'
+      interval: 'monthly'
+    cooldown:
+      default-days: 2
+    groups:
+      # Bundle all action updates (including majors) into a single PR.
+      # actions.lock pins every action by SHA, so minor/patch bumps are still meaningful.
+      github-actions:
+        patterns:
+          - '*'
+
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    cooldown:
+      default-days: 2
+    groups:
+      # Bundle minor/patch into a single PR to cut review overhead (majors get their own PR).
+      npm-minor-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+    ignore:
+      # @types/node tracks the Node runtime major (Node 24, see .node-version / engines).
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
