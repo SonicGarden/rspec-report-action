@@ -19,6 +19,7 @@ pnpm run package  # rollup bundle into dist/ — REQUIRED before committing src/
 - **ESM imports use `.js` specifiers** even though sources are `.ts` (e.g. `import { parse } from './parse.js'`). `ts-jest-resolver` maps these in tests.
 - **Tests resolve fixtures via `GITHUB_WORKSPACE`.** `parse.ts` reads paths relative to `process.env.GITHUB_WORKSPACE`; fixtures are `.dummy_results-*.json`.
 - **Code comments are written in English** — match this convention.
+- **Commit messages, PR titles, and PR bodies are written in English**, even when conversing in Japanese.
 - Node 24 / pnpm 10, pinned in `.node-version` and `mise.toml`.
 
 ## Architecture
