@@ -18,7 +18,7 @@ There is no build, bundle, or `dist/`; `action.yml` runs `report.mjs` directly w
 - **Workflow actions are locked** in `.github/workflows/actions.lock`; after changing any `uses:` (workflows or `action.yml`), run `gh actions-lock --no-narrow` and `gh actions-lock --verify`. `--no-narrow` keeps the SHA pins in `action.yml` (consumers without a lockfile rely on them); plain `gh actions-lock` would rewrite them to tags. The test job uses `uses: $/` so the lock tool can follow `action.yml`.
 - **Code comments are written in English** — match this convention.
 - **Commit messages, PR titles, and PR bodies are written in English**, even when conversing in Japanese.
-- Node version pinned in `.node-version` and `mise.toml`.
+- Node major version `26` is set in `mise.toml` (local) and `.github/workflows/test.yml` (CI); keep them in sync.
 
 ## Architecture
 
