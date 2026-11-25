@@ -21,7 +21,7 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: ./
+      - uses: $/
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           json-path: '.dummy_results-0.json'

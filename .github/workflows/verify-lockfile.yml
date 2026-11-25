@@ -22,4 +22,4 @@ jobs:
         with:
           persist-credentials: false
       - run: gh extension install github/gh-actions-lock --pin v0.4.1
-      - run: gh actions-lock --verify --ignore-local-actions
+      - run: gh actions-lock --verify
