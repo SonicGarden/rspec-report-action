@@ -28,6 +28,10 @@ inputs:
     description: 'Title for profile'
     default: '# Slowest examples'
     required: false
+  profile:
+    description: 'Set this to false to disable the slowest examples comment'
+    default: 'true'
+    required: false
 runs:
   using: 'composite'
   steps:
@@ -59,7 +63,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
 
     - name: Update profile comment
-      if: inputs.comment == 'true' && steps.report.outputs.pr-number != ''
+      if: inputs.comment == 'true' && inputs.profile == 'true' && steps.report.outputs.pr-number != ''
       uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
       with:
         header: rspec-report-profile
