@@ -1,0 +1,30 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+' # excludes bare major tags (v9) and pre-release tags (v2.1.0.pre1)
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - name: Create release
+        run: gh release create "$TAG" --title "$TAG" --generate-notes --verify-tag --latest
+      - name: Update major tag and its release
+        run: |
+          major="${TAG%%.*}"
+          if gh api "repos/$GH_REPO/git/ref/tags/$major" > /dev/null 2>&1; then
+            gh api -X PATCH "repos/$GH_REPO/git/refs/tags/$major" -f sha="$GITHUB_SHA" -F force=true
+          else
+            gh api -X POST "repos/$GH_REPO/git/refs" -f ref="refs/tags/$major" -f sha="$GITHUB_SHA"
+          fi
+          gh release view "$major" > /dev/null 2>&1 ||
+            gh release create "$major" --title "$major" --notes "" --latest=false
