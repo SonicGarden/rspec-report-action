@@ -8,7 +8,7 @@ GitHub Action (zero-dependency composite action) that reports RSpec failures as 
 node --test   # run all tests (Node >= 22, no install step)
 ```
 
-Release: push a `vX.Y.Z` tag; `.github/workflows/release.yml` creates the Release (auto-generated notes) and moves the major tag `vX` (creating its empty Release on first use).
+Release: run the `release` workflow manually (Actions → release → Run workflow) on `main`, choosing `major` / `minor` / `patch`. It computes the next `vX.Y.Z` from the latest tag, creates the tag and Release (auto-generated notes), and moves the major tag `vX` (creating its empty Release on first use).
 
 There is no build, bundle, or `dist/`; `action.yml` runs `report.mjs` directly with the runner's `node`.
 
