@@ -29,5 +29,40 @@ inputs:
     default: '# Slowest examples'
     required: false
 runs:
-  using: 'node24'
-  main: 'dist/index.js'
+  using: 'composite'
+  steps:
+    - id: report
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/report.mjs"
+      env:
+        RSPEC_JSON_PATH: ${{ inputs.json-path }}
+        RSPEC_TITLE: ${{ inputs.title }}
+        RSPEC_HIDE_FOOTER_LINK: ${{ inputs.hideFooterLink }}
+        RSPEC_PROFILE_TITLE: ${{ inputs.profileTitle }}
+
+    - name: Update failure comment
+      if: inputs.comment == 'true' && steps.report.outputs.pr-number != '' && steps.report.outputs.success == 'false'
+      uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+      with:
+        header: rspec-report-failure
+        path: ${{ steps.report.outputs.failure-comment-path }}
+        number_force: ${{ steps.report.outputs.pr-number }}
+        GITHUB_TOKEN: ${{ inputs.token }}
+
+    - name: Delete failure comment
+      if: inputs.comment == 'true' && steps.report.outputs.pr-number != '' && steps.report.outputs.success == 'true'
+      uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+      with:
+        header: rspec-report-failure
+        delete: true
+        number_force: ${{ steps.report.outputs.pr-number }}
+        GITHUB_TOKEN: ${{ inputs.token }}
+
+    - name: Update profile comment
+      if: inputs.comment == 'true' && steps.report.outputs.pr-number != ''
+      uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+      with:
+        header: rspec-report-profile
+        path: ${{ steps.report.outputs.profile-comment-path }}
+        number_force: ${{ steps.report.outputs.pr-number }}
+        GITHUB_TOKEN: ${{ inputs.token }}

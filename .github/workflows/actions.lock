@@ -6,7 +6,7 @@ workflows:
     '.github/workflows/test.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
-        - 'pnpm/action-setup@v6.1.1'
+        - 'marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88'
     '.github/workflows/verify-lockfile.yml':
         - 'actions/checkout@v7.0.1'
 dependencies:
@@ -20,8 +20,8 @@ dependencies:
         commit: 'sha1-949feb2413d6458794dcd2491c4babbbce0c15c1'
         owner_id: 44036562
         repo_id: 189476904
-    'pnpm/action-setup@v6.1.1':
-        ref: 'v6.1.1'
-        commit: 'sha1-73e46992e05b19abd31f2f3c20e0e7370d762115'
-        owner_id: 21320719
-        repo_id: 262289747
+    'marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88':
+        ref: 'v3.0.5'
+        commit: 'sha1-5770ad5eb8f42dd2c4f34da00c94c5381e49af88'
+        owner_id: 128431
+        repo_id: 223043916

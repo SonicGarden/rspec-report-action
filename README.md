@@ -29,6 +29,28 @@ See [action.yml](action.yml)
 | `hideFooterLink` | Hide footer link                                           | `false`                        | no       |
 | `comment`        | Set this if want to comment report to pull request         | `true`                         | no       |
 
+### Requirements
+
+- Node.js 22 or later must be available on the runner (GitHub-hosted ubuntu
+  runners satisfy this).
+- To post the pull request comment, the workflow (or job) needs
+  `permissions: pull-requests: write`. This matters especially for Dependabot
+  pull requests, whose `GITHUB_TOKEN` is read-only unless granted explicitly:
+
+  ```yaml
+  permissions:
+    contents: read
+    pull-requests: write
+  ```
+
+### Upgrading from v8
+
+Pull request comments are now managed by
+[marocchino/sticky-pull-request-comment](https://github.com/marocchino/sticky-pull-request-comment)
+using hidden headers. Comments created by v8 are not updated or deleted
+automatically; the first v9 run creates new comments (you may delete the old
+ones by hand).
+
 ## Example
 
 ```yaml
@@ -45,7 +67,7 @@ jobs:
         run: bundle exec rspec -f j -o tmp/rspec_results.json -f p
 
       - name: RSpec Report
-        uses: SonicGarden/rspec-report-action@v8
+        uses: SonicGarden/rspec-report-action@v9
         with:
           json-path: tmp/rspec_results.json
         if: always()
@@ -106,7 +128,7 @@ jobs:
           path: /tmp/json-reports
           merge-multiple: true
       - name: RSpec Report
-        uses: SonicGarden/rspec-report-action@v8
+        uses: SonicGarden/rspec-report-action@v9
         with:
           json-path: /tmp/json-reports/rspec_results-*.json
 ```

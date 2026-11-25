@@ -1,35 +1,27 @@
 # CLAUDE.md
 
-GitHub Action (TypeScript, ESM) that reports RSpec failures as a Job Summary and/or PR comment.
+GitHub Action (zero-dependency composite action) that reports RSpec failures as a Job Summary and/or PR comment.
 
 ## Commands
 
 ```bash
-pnpm install
-pnpm run all      # full gate: build (tsc --noEmit) → format-check → lint → package → test
-pnpm test         # jest (ts-jest, ESM)
-pnpm run package  # rollup bundle into dist/ — REQUIRED before committing src/ changes
+node --test   # run all tests (Node >= 22, no install step)
 ```
 
-`pnpm run build` is type-check only (`tsc --noEmit`); it does not emit. The shipped artifact is built by `package`.
+There is no build, bundle, or `dist/`; `action.yml` runs `report.mjs` directly with the runner's `node`.
 
 ## Gotchas
 
-- **`dist/` is committed and must be rebuilt.** `action.yml` runs `dist/index.js`. After any `src/` change, run `pnpm run package` and commit `dist/`, or the action ships stale code.
-- **ESM imports use `.js` specifiers** even though sources are `.ts` (e.g. `import { parse } from './parse.js'`). `ts-jest-resolver` maps these in tests.
-- **Tests resolve fixtures via `GITHUB_WORKSPACE`.** `parse.ts` reads paths relative to `process.env.GITHUB_WORKSPACE`; fixtures are `.dummy_results-*.json`.
+- **No dependencies, no package.json.** Use only Node built-ins in `report.mjs`.
+- **Tests resolve fixtures via `GITHUB_WORKSPACE`.** Fixtures are `.dummy_results-*.json`.
+- **PR comments are not posted by `report.mjs`.** It writes comment bodies to files; `marocchino/sticky-pull-request-comment` (pinned SHA) posts them with headers `rspec-report-failure` / `rspec-report-profile`. Dependabot runs need `permissions: pull-requests: write`.
+- **Workflow actions are locked** in `.github/workflows/actions.lock`; after changing any `uses:` (workflows or `action.yml`), run `gh actions-lock --no-narrow` and `gh actions-lock --verify`. `--no-narrow` keeps the SHA pins in `action.yml` (consumers without a lockfile rely on them); plain `gh actions-lock` would rewrite them to tags. The test job uses `uses: $/` so the lock tool can follow `action.yml`.
 - **Code comments are written in English** — match this convention.
 - **Commit messages, PR titles, and PR bodies are written in English**, even when conversing in Japanese.
-- Node 24 / pnpm 10, pinned in `.node-version` and `mise.toml`.
+- Node version pinned in `.node-version` and `mise.toml`.
 
 ## Architecture
 
-Pipeline driven by `src/main.ts`:
-
-- `parse.ts` — reads RSpec JSON file(s) (glob-supported), merges examples, returns `RspecResult` (failures, slow examples, summary, totalTime). `extractProjectBacktrace` keeps project-local backtrace lines and drops gem/Ruby internals.
-- `format.ts` — builds the failure Markdown: a copy-friendly code block listing `path:line description`, plus a single `<details>` block with linked headings, raw message, and backtrace. Capped at `MAX_LIST_ITEMS` (20); overflow shown as `... and N more failures`.
-- `report-summary.ts` — writes the GitHub Job Summary (`core.summary`).
-- `report-comment.ts` — upserts the failure PR comment (deletes it on success).
-- `profile-comment.ts` — separate PR comment with the slowest-examples table.
-
-Inputs are defined in `action.yml`.
+- `report.mjs` — single file: parses RSpec JSON file(s) (glob-supported), merges examples, builds failure Markdown (copy-friendly code block of `path:line description` plus one `<details>` block, capped at 20 items) and the slowest-examples table, writes the Job Summary, and writes comment bodies to files. Project-local backtrace lines are kept; gem/Ruby internals dropped.
+- `action.yml` — composite action: runs `report.mjs`, then sticky comment steps (failure comment removed on success). Inputs are defined here.
+- `test/report.test.mjs` — `node:test` tests.
